@@ -98,4 +98,4 @@ class AlgoSelectWindow():
 
 
 
-w = AlgoSelectWindow()
+

@@ -22,9 +22,9 @@ def main():
     pygame.display.flip()
 
     # Launch window and define selected algorithm
-    window = AlgoSelectWindow()
-    algorithm = window.choice
-    #print(algorithm)
+    popup = window.AlgoSelectWindow()
+    algorithm = popup.choice
+    print(algorithm)
 
     # Game loop
     while True:
