@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.font as tkFont
 
-font = "Helvetica"
-size = 18
 algorithm_list = [
             "Algorithm 1",
             "Algorithm 2",
@@ -20,6 +19,10 @@ class ChoiceWindow():
         self.window.columnconfigure(0, minsize=250, weight = 1)
         self.window.rowconfigure([0,1], minsize=100, weight=1)
 
+        # Set font
+        myfont = tkFont.Font(family="Helvetica", size=48)
+        
+
         # Intro frame
         intro_frame = tk.Frame()
         intro_frame.grid(row=0, column=0)
@@ -27,6 +30,7 @@ class ChoiceWindow():
         greeting = tk.Label(
             master=intro_frame,
             text="Welcome to the maze generation alogrithm visualizer!",
+            font=myfont,
         )
         greeting.pack()
        
@@ -38,8 +42,7 @@ class ChoiceWindow():
         select_label = tk.Label(
             master=select_frame,
             text="To begin, please select an algorithm",
-            font = font,
-            size = size,
+            font=myfont
         )
         select_label.pack()
         
@@ -47,9 +50,9 @@ class ChoiceWindow():
         self.select_widget = ttk.Combobox(
             master=select_frame,
             values= algorithm_list,
-            font = font,
-            size = size,
+            font=myfont,   
         )
+        self.window.option_add('*TCombobox*Listbox.font', myfont)
         self.select_widget.pack()
 
         run_button = tk.Button(
@@ -60,8 +63,7 @@ class ChoiceWindow():
             fg="black",
             master=select_frame,
             command=self.run_algorithm,
-            font = font,
-            size = size,
+            font=myfont,
         )
         run_button.pack()
         
