@@ -2,6 +2,8 @@ import pygame.surfarray as surfarray
 import numpy as np
 import pygame
 from pygame.locals import *
+import window
+
 pygame.init()
 
 def main():
@@ -18,6 +20,11 @@ def main():
     # Blit everything to the screen
     screen.blit(background, (0, 0))
     pygame.display.flip()
+
+    # Launch window and define selected algorithm
+    window = AlgoSelectWindow()
+    algorithm = window.choice
+    #print(algorithm)
 
     # Game loop
     while True:

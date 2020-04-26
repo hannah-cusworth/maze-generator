@@ -1,18 +1,17 @@
 import tkinter as tk
-from tkinter import ttk
 import tkinter.font as tkFont
 
-algorithm_list = [
+algorithm_list = (
             "Algorithm 1",
             "Algorithm 2",
             "Algorithm 3",
-        ]
+)
 # Padding
 x = 50
 y = 50
 button_padding = 200
 
-class ChoiceWindow():
+class AlgoSelectWindow():
     def __init__(self):
         self.window = tk.Tk()
         self.choice = ""
@@ -53,14 +52,20 @@ class ChoiceWindow():
         )
         select_label.pack()
         
-        
-        self.select_widget = ttk.Combobox(
-            master=select_frame,
-            values= algorithm_list,
-            font=myfont, 
-        )
-        self.window.option_add('*TCombobox*Listbox.font', listfont)
-        self.select_widget.pack()
+        self.select_variable = tk.StringVar(self.window)    # Variable which stores the current option choice
+        select_widget = tk.OptionMenu(     # OptionMenu(parent, variable, value)
+            select_frame, 
+            self.select_variable,
+            *algorithm_list,) 
+        select_widget.configure(
+            font=listfont, 
+            width=20, 
+            height=2, 
+            bg="white",
+            )
+        menu = select_widget.nametowidget(select_widget.menuname)     # Get dropdown menu
+        menu.configure(font=(listfont))                                     # Set font size of menu
+        select_widget.pack()
 
         # Button
         run_button = tk.Button(
@@ -84,7 +89,7 @@ class ChoiceWindow():
         self.window.mainloop()
 
     def run_algorithm(self):
-        self.choice = self.select_widget.get()
+        self.choice = self.select_variable.get()
         if self.choice:
             self.quit()
     
@@ -93,5 +98,4 @@ class ChoiceWindow():
 
 
 
-window = ChoiceWindow()
-print(window.choice)
+w = AlgoSelectWindow()
