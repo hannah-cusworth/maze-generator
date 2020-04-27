@@ -15,10 +15,10 @@ grid_size = 50
 border_width = grid_size*2 # note that because the border grows either side of line, only half of this is visible
 
 # Colours
-background_colour = (255,255,255)
-grid_colour = (0,0,0)
-border_colour = (255, 0, 0)
-cell_colour = (160,160,160)
+background_colour = (255,255,255, 255)
+grid_colour = (0,0,0,255)
+border_colour = (255, 0, 0, 255)
+cell_colour = (160,160,160, 255)
     
 def draw_grid(background):
 
@@ -38,20 +38,29 @@ class Cell():
         self.coord = [x,y]
         self.rect = Rect(self.coord[0], self.coord[1], grid_size, grid_size)
         self.colour = cell_colour
-    def move(self):
-        directions = {
-            "North": (0, grid_size + 1),
-            "South": (0, -grid_size - 1), 
-            "East": (grid_size + 1, 0), 
-            "West": (-grid_size - 1, 0)
-            }
-        move = random.choice(list(directions.items()))
-        print(move[1])
+    
+    def move(self, move):
         self.rect.move_ip(move[1])
         
         
-    
+def algorithm(current, background):
+    directions = [
+                (0, grid_size + 1), # N
+                (0, -grid_size - 1), # S
+                (grid_size + 1, 0), # E
+                (-grid_size - 1, 0) # W
+            ]           
+    rand = random.shuffle(directions)
+    for move in directions:
+        test = current.rect.move(move)
+        colour = background.get_at((test.left, test.top))
+        if colour != cell_colour:
+            current.rect.move_ip(move)
+            background.fill(current.colour, rect=current.rect)
+            break
         
+        
+            
 
 
 
@@ -70,17 +79,16 @@ def main():
     # Create cell
     current = Cell(511,1021)
     background.fill(current.colour, rect=current.rect)
-    for i in range(50):
-        current.move()
-        background.fill(current.colour, rect=current.rect)
-        print(current.rect)
+    for i in range(10):
+        algorithm(current,background)
+    
 
     # Blit everything to the screen
     screen.blit(background, (0, 0))
     pygame.display.flip()
 
-    '''# Launch window and define selected algorithm
-    popup = window.AlgoSelectWindow()
+    # Launch window and define selected algorithm
+    '''popup = window.AlgoSelectWindow()
     algorithm = popup.choice
     print(algorithm)'''
 
