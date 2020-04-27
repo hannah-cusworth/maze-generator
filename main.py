@@ -3,6 +3,7 @@ import numpy as np
 import pygame
 from pygame.locals import *
 import window
+import algorithms
 
 pygame.init()
 # Dimensions
@@ -16,6 +17,7 @@ border_width = 40 # note that because the border grows either side of line, only
 background_colour = (255,255,255)
 grid_colour = (0,0,0)
 border_colour = (255, 0, 0)
+cell_colour = (0,0,255)
     
 def draw_grid(background):
 
@@ -28,7 +30,16 @@ def draw_grid(background):
     # Draw border
     border = pygame.Rect(0, 0, screenx, screeny)
     pygame.draw.rect(background, border_colour, border, border_width)
-    
+
+class Cell():
+    def __init__(self, start):
+        self.start = start
+        self.dirnx = 0
+        self.dirny = 0
+        self.colour = cell_colour
+
+    def draw(self, background):
+        pygame.draw.rect(background, self.colour, self.start)
 
 def main():
     pygame.init()
@@ -41,6 +52,11 @@ def main():
     background.convert()
     background.fill(background_colour)
     draw_grid(background)
+
+    # Create cell
+    start = Rect(300,300,20,20)
+    current = Cell(start)
+    current.draw(background)
 
     # Blit everything to the screen
     screen.blit(background, (0, 0))
