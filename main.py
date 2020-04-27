@@ -5,26 +5,51 @@ from pygame.locals import *
 import window
 
 pygame.init()
+# Dimensions
+screenx = 2500
+screeny = 1500
+
+grid_size = 20
+border_width = 40 # note that because the border grows either side of line, only half of this is visible
+
+# Colours
+background_colour = (255,255,255)
+grid_colour = (0,0,0)
+border_colour = (255, 0, 0)
+    
+def draw_grid(background):
+
+    for x in range(0, screenx, grid_size):
+        pygame.draw.line(background, grid_colour, (x, 0), (x, screeny), 1)
+        
+    for y in range(0, screeny, grid_size):
+        pygame.draw.line(background, grid_colour, (0, y), (screenx, y), 1)
+    
+    # Draw border
+    border = pygame.Rect(0, 0, screenx, screeny)
+    pygame.draw.rect(background, border_colour, border, border_width)
+    
 
 def main():
     pygame.init()
     # Initialise screen
-    screen = pygame.display.set_mode((2500, 1500))
+    screen = pygame.display.set_mode((screenx, screeny))
     pygame.display.set_caption('Visualiser')
 
-    # Fill background
+    # Create background and draw grid
     background = pygame.Surface(screen.get_size())
-    background = background.convert()
-    background.fill((0, 255, 0))
+    background.convert()
+    background.fill(background_colour)
+    draw_grid(background)
 
     # Blit everything to the screen
     screen.blit(background, (0, 0))
     pygame.display.flip()
 
-    # Launch window and define selected algorithm
+    '''# Launch window and define selected algorithm
     popup = window.AlgoSelectWindow()
     algorithm = popup.choice
-    print(algorithm)
+    print(algorithm)'''
 
     # Game loop
     while True:
@@ -34,3 +59,5 @@ def main():
         pygame.display.update()
 
 if __name__ == '__main__':main()
+
+
