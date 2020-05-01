@@ -40,7 +40,7 @@ class Cell():
     def __init__(self, x, y):
         self.start = (x,y)
         self.coord = [x,y]
-        self.rect = Rect(self.coord[0], self.coord[1], grid_size, grid_size)
+        self.rect = Rect(self.coord[0], self.coord[1], grid_size-1, grid_size-1)
         self.colour = cell_colour
     
     def move(self, move):
@@ -56,10 +56,10 @@ def algorithm(current, background):
     right = current.rect. right
 
     directions = [
-                [(0, -grid_size - 1), (left, top - 1), (right - 1, top - 1)], # N
-                [(0, grid_size + 1), (left, bottom), (right - 1, bottom)], # S
-                [(grid_size + 1, 0), (right, top), (right, bottom - 1)], # E
-                [(-grid_size - 1, 0), (left - 1, top), (left - 1, bottom - 1)], # W
+                [(0, -grid_size), (left, top - 1), (right - 1, top - 1)], # N
+                [(0, grid_size), (left, bottom), (right - 1, bottom)], # S
+                [(grid_size, 0), (right, top), (right, bottom - 1)], # E
+                [(-grid_size, 0), (left - 1, top), (left - 1, bottom - 1)], # W
             ]           
     rand = random.shuffle(directions)   # Shuffle order
 
@@ -90,9 +90,6 @@ def main():
     screen = pygame.display.set_mode((screenx, screeny))
     pygame.display.set_caption('Visualiser')
 
-    print(screeny)
-    print(grid_size)
-
     # Create background and draw grid
     background = pygame.Surface(screen.get_size())
     background.convert()
@@ -100,7 +97,7 @@ def main():
     draw_grid(background)
     
     # Create cell
-    current = Cell(511,1021)
+    current = Cell(481, 481)
     background.fill(current.colour, rect=current.rect)
     
     # Blit everything to the screen
