@@ -23,7 +23,6 @@ border_colour = (255, 0, 0, 255)
 cell_colour = (160,160,160, 255)
 start_colour = (0,0,255, 255)
 
-
 # Timings
 wait_time = 500
     
@@ -45,12 +44,11 @@ class Cell():
         self.rect = Rect((grid_size * x) + 1, (grid_size * y) + 1, grid_size-1, grid_size-1)
         self.colour = cell_colour
     
-    
-        
+
         
 def algorithm(current, background):
 
-    # Define directions: [(coord translation), traversed border coord 1, traversed border coord 2]
+    # Define directions: [(dx,dy), traversed border coord 1, traversed border coord 2]
     top = current.rect.top
     bottom = current.rect.bottom
     left = current.rect.left
@@ -91,15 +89,20 @@ def main():
     screen = pygame.display.set_mode((screenx, screeny))
     pygame.display.set_caption('Visualiser')
 
+    # Set events
+    allowed = [MOUSEBUTTONUP, MOUSEBUTTONDOWN]
+    pygame.event.set_allowed(allowed)
+
     # Create background and draw grid
     background = pygame.Surface(screen.get_size())
     background.convert()
     background.fill(background_colour)
     draw_grid(background)
     
-    # Create cell
-    current = Cell(1,2)
-    background.fill(current.colour, rect=current.rect)
+    # Set up start
+    highlighted_cell = Cell(1,1)
+    start_cell = None
+   
     
     # Blit everything to the screen
     screen.blit(background, (0, 0))
@@ -115,13 +118,22 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
-        mouse = pygame.mouse.get_pos()
-        colour = background.get_at(mouse)
-        if colour == background_colour:
-            x = int((mouse[0] - 1) / grid_size)
-            y = int((mouse[1] - 1)/ grid_size)
-            hover = Cell(x,y)
-            background.fill(start_colour, rect=hover)
+            if event.type == MOUSEBUTTONDOWN:
+                start_cell = highlighted_cell
+
+        if not start_cell:
+            mouse = pygame.mouse.get_pos()
+            colour = background.get_at(mouse)
+            if colour == background_colour:
+                background.fill(background_colour, rect=highlighted_cell)
+                x = int((mouse[0] - 1) / grid_size)
+                y = int((mouse[1] - 1)/ grid_size)
+                highlighted_cell = Cell(x,y)
+                background.fill(start_colour, rect=highlighted_cell)
+                screen.blit(background, (0,0))
+        
+        
+
         
         #algorithm(current,background)
         screen.blit(background, (0, 0))
