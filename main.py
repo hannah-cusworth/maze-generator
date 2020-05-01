@@ -10,9 +10,10 @@ import random
 pygame.init()
 
 # Dimensions
-screenx = 2500
-grid_size = 50
-screeny = 1500
+info = pygame.display.Info()
+screenx = int((info.current_w * 0.75)  - ((info.current_w*0.75) % 50))
+grid_size = int(screenx/50)
+screeny = int(screenx * 0.6) - (int(screenx * 0.6) % grid_size)
 border_width = grid_size*2 # note that because the border grows either side of line, only half of this is visible
 
 # Colours
@@ -20,6 +21,7 @@ background_colour = (255,255,255, 255)
 grid_colour = (0,0,0,255)
 border_colour = (255, 0, 0, 255)
 cell_colour = (160,160,160, 255)
+start_colour = (0,0,255, 255)
 
 
 # Timings
@@ -40,12 +42,10 @@ def draw_grid(background):
 class Cell():
     def __init__(self, x, y):
         self.start = (x,y)
-        self.coord = [x,y]
-        self.rect = Rect(self.coord[0], self.coord[1], grid_size-1, grid_size-1)
+        self.rect = Rect((grid_size * x) + 1, (grid_size * y) + 1, grid_size-1, grid_size-1)
         self.colour = cell_colour
     
-    def move(self, move):
-        self.rect.move_ip(move[1])
+    
         
         
 def algorithm(current, background):
@@ -98,7 +98,7 @@ def main():
     draw_grid(background)
     
     # Create cell
-    current = Cell(501, 1001)
+    current = Cell(1,2)
     background.fill(current.colour, rect=current.rect)
     
     # Blit everything to the screen
@@ -116,8 +116,14 @@ def main():
             if event.type == QUIT:
                 return
         mouse = pygame.mouse.get_pos()
+        colour = background.get_at(mouse)
+        if colour == background_colour:
+            x = int((mouse[0] - 1) / grid_size)
+            y = int((mouse[1] - 1)/ grid_size)
+            hover = Cell(x,y)
+            background.fill(start_colour, rect=hover)
         
-        algorithm(current,background)
+        #algorithm(current,background)
         screen.blit(background, (0, 0))
         pygame.display.update()
 
