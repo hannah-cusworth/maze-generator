@@ -9,10 +9,10 @@ import random
 pygame.init()
 
 # Dimensions
-screenx = 2500
-screeny = 1500
-
-grid_size = 50
+info = pygame.display.Info()
+screenx = int((info.current_w * 0.75)  - ((info.current_w*0.75) % 50))
+grid_size = int(screenx/50)
+screeny = int(screenx * 0.6) - (int(screenx * 0.6) % grid_size)
 border_width = grid_size*2 # note that because the border grows either side of line, only half of this is visible
 
 # Colours
@@ -26,14 +26,14 @@ wait_time = 500
     
 def draw_grid(background):
 
-    for x in range(0, screenx, grid_size + 1):
+    for x in range(0, screenx, grid_size):
         pygame.draw.line(background, grid_colour, (x, 0), (x, screeny), 1)
         
-    for y in range(0, screeny, grid_size + 1):
+    for y in range(0, screeny, grid_size):
         pygame.draw.line(background, grid_colour, (0, y), (screenx, y), 1)
     
     # Draw border
-    border = pygame.Rect(0, 0, screenx, screeny)
+    border = pygame.Rect(0, 0, screenx - 1, screeny)
     pygame.draw.rect(background, border_colour, border, border_width)
 
 class Cell():
@@ -48,6 +48,7 @@ class Cell():
         
         
 def algorithm(current, background):
+
     # Define directions: [(coord translation), traversed border coord 1, traversed border coord 2]
     top = current.rect.top
     bottom = current.rect.bottom
@@ -60,20 +61,21 @@ def algorithm(current, background):
                 [(grid_size + 1, 0), (right, top), (right, bottom - 1)], # E
                 [(-grid_size - 1, 0), (left - 1, top), (left - 1, bottom - 1)], # W
             ]           
-    rand = random.shuffle(directions)
+    rand = random.shuffle(directions)   # Shuffle order
 
     # Iterate over randomly ordered directions, checking whether moving into cell already visited
     for move in directions:
         test = current.rect.move(move[0])
-        colour = background.get_at((test.left, test.top))
+        colour = background.get_at((test.left, test.top))   # Check unvisted based on colour
+
         # If in this direction unvisited, move current there, fill cell and erase border
-        if colour != cell_colour:
+        if colour != cell_colour and colour != border_colour:
             current.rect.move_ip(move[0])
             background.fill(current.colour, rect=current.rect)
-            pygame.draw.line(background, current.colour, move[1], move[2])
-            # Wait 1/2 a second
-            time = pygame.time.get_ticks()
-            while pygame.time.get_ticks() < time + wait_time:
+            pygame.draw.line(background, current.colour, move[1], move[2])  # Erase traversed border
+            
+            time = pygame.time.get_ticks()                      # Wait
+            while pygame.time.get_ticks() < time + wait_time: 
                 pass
             break
         
@@ -87,6 +89,9 @@ def main():
     # Initialise screen
     screen = pygame.display.set_mode((screenx, screeny))
     pygame.display.set_caption('Visualiser')
+
+    print(screeny)
+    print(grid_size)
 
     # Create background and draw grid
     background = pygame.Surface(screen.get_size())
