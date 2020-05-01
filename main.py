@@ -6,13 +6,13 @@ import window
 import algorithms
 import random
 
+
 pygame.init()
 
 # Dimensions
-info = pygame.display.Info()
-screenx = int((info.current_w * 0.75)  - ((info.current_w*0.75) % 50))
-grid_size = int(screenx/50)
-screeny = int(screenx * 0.6) - (int(screenx * 0.6) % grid_size)
+screenx = 2500
+grid_size = 50
+screeny = 1500
 border_width = grid_size*2 # note that because the border grows either side of line, only half of this is visible
 
 # Colours
@@ -20,6 +20,7 @@ background_colour = (255,255,255, 255)
 grid_colour = (0,0,0,255)
 border_colour = (255, 0, 0, 255)
 cell_colour = (160,160,160, 255)
+
 
 # Timings
 wait_time = 500
@@ -97,7 +98,7 @@ def main():
     draw_grid(background)
     
     # Create cell
-    current = Cell(481, 481)
+    current = Cell(501, 1001)
     background.fill(current.colour, rect=current.rect)
     
     # Blit everything to the screen
@@ -114,6 +115,8 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
+        mouse = pygame.mouse.get_pos()
+        
         algorithm(current,background)
         screen.blit(background, (0, 0))
         pygame.display.update()
