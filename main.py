@@ -17,14 +17,16 @@ screeny = int(screenx * 0.6) - (int(screenx * 0.6) % grid_size)
 border_width = grid_size*2 # note that because the border grows either side of line, only half of this is visible
 
 # Colours
-background_colour = (255,255,255, 255)
+background_colour = (160,160,160, 255)
 grid_colour = (0,0,0,255)
 border_colour = (255, 0, 0, 255)
-cell_colour = (160,160,160, 255)
+cell_colour = (200,200,200, 255)
 start_colour = (0,0,255, 255)
+final_colour = (255, 255, 255, 255)
+current_colour = (0,255,0,255)
 
 # Timings
-wait_time = 500
+wait_time = 10
     
 def draw_grid(background):
 
@@ -40,14 +42,14 @@ def draw_grid(background):
 
 class Cell():
     def __init__(self, x, y):
-        self.start = (x,y)
+        self.start = Rect((grid_size * x) + 1, (grid_size * y) + 1, grid_size-1, grid_size-1)
         self.rect = Rect((grid_size * x) + 1, (grid_size * y) + 1, grid_size-1, grid_size-1)
         self.colour = cell_colour
     
 
         
 def algorithm(current, background):
-
+     
     # Define directions: [(dx,dy), traversed border coord 1, traversed border coord 2]
     top = current.rect.top
     bottom = current.rect.bottom
@@ -68,15 +70,35 @@ def algorithm(current, background):
         colour = background.get_at((test.left, test.top))   # Check unvisted based on colour
 
         # If in this direction unvisited, move current there, fill cell and erase border
-        if colour != cell_colour and colour != border_colour:
+        if colour == background_colour:
+            background.fill(cell_colour, rect=current.rect)
             current.rect.move_ip(move[0])
-            background.fill(current.colour, rect=current.rect)
-            pygame.draw.line(background, current.colour, move[1], move[2])  # Erase traversed border
+            background.fill(current_colour, rect=current.rect)
+            pygame.draw.line(background, cell_colour, move[1], move[2])  # Erase traversed border
             
             time = pygame.time.get_ticks()                      # Wait
             while pygame.time.get_ticks() < time + wait_time: 
                 pass
-            break
+            return
+
+    # If there are no available cells, retrace path and fill new colour.
+    # This is the equivalent of recursive calls returning
+    for move in directions:
+        test = current.rect.move(move[0])
+        colour = background.get_at(move[1])
+        if colour == cell_colour:
+            background.fill(final_colour, rect=current.rect)
+            current.rect.move_ip(move[0])
+            background.fill(current_colour, rect=current.rect)
+            pygame.draw.line(background, final_colour, move[1], move[2])
+            time = pygame.time.get_ticks()                      # Wait
+            while pygame.time.get_ticks() < time + wait_time: 
+                pass
+            return
+
+    
+    
+
         
         
             
@@ -101,7 +123,7 @@ def main():
     
     # Set up start
     highlighted_cell = Cell(1,1)
-    start_cell = None
+    current_cell = None
    
     
     # Blit everything to the screen
@@ -118,10 +140,10 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
-            if event.type == MOUSEBUTTONDOWN:
-                start_cell = highlighted_cell
+            if event.type == MOUSEBUTTONDOWN and colour != border_colour:
+                current_cell = highlighted_cell
 
-        if not start_cell:
+        if not current_cell:
             mouse = pygame.mouse.get_pos()
             colour = background.get_at(mouse)
             if colour == background_colour:
@@ -132,10 +154,10 @@ def main():
                 background.fill(start_colour, rect=highlighted_cell)
                 screen.blit(background, (0,0))
         
-        
-
-        
-        #algorithm(current,background)
+        else:
+            background.fill(start_colour, current_cell.start)
+            algorithm(current_cell, background)
+            
         screen.blit(background, (0, 0))
         pygame.display.update()
 
