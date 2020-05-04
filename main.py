@@ -25,10 +25,10 @@ cell_colour = (200,200,200, 255)
 start_colour = (0,0,255, 255)
 final_colour = (255, 255, 255, 255)
 current_colour = (0,255,0,255)
-set_colours = [(random.randint(1,255), random.randint(1,255), random.randint(1,255), 255) for i in range(grid-2)] # keep between 1 and 255 to exclude border/grid/background
+set_colours = [(random.randint(1,255), random.randint(1,255), random.randint(1,255), 255) for bob in range(grid-1)] # keep between 1 and 255 to exclude border/grid/background
 
 # Timings
-wait_time = 10
+wait_time = 800
 
 
 # Control set up 
@@ -59,28 +59,37 @@ class Cell():
         self.rect = Rect((grid_size * x) + 1, (grid_size * y) + 1, grid_size-1, grid_size-1)
         self.colour = None
         self.index = x
+        self.merge = False
         
 
     
 class Row():
-    def __init__(self, y):
+    def __init__(self, y, prev):
         self.y = (grid_size * y) + 1 
         border = Cell(0,y)
         border.colour = border_colour
         self.border = border
         self.cells = [border]
-    
+
         for i in range(1, grid-1):
             new = Cell(i, y)
             if y == 1:
                 new.colour = set_colours[0]
+                
+            else: 
+                triple = self.get_triple(i, prev)
+                adj_colour = triple[1]
+                if triple[2] == adj_colour or (triple[0] == adj_colour and self.cells[i-1].colour == adj_colour):
+                    new.colour = random.choice([adj_colour, random.choice(set_colours)])
+                    
+                else: 
+                    new.colour = adj_colour 
+            try:      
                 index = set_colours.index(new.colour)
                 set_colours.pop(index)
-                self.cells.append(new)
-            else: 
-                #new.colour = random.choice([random.choice(set_colours), new.get_colour_adjacent(0,1,background)])
-                new.colour = (255,255,255)
-            
+            except:
+                pass
+            self.cells.append(new)    
         self.cells.append(border)
           
     def test_colour_adjacent(self, cell, dx):
@@ -90,31 +99,30 @@ class Row():
     def get_colour_adjacent(self, cell, dx):
         return self.cells[cell.index + dx].colour
     
-    
+    def get_triple(self, i, prev):
+        return [prev.cells[i -1].colour, prev.cells[i].colour, prev.cells[i+1].colour]
     
     def merge_same_horizontal(self, background):
         for cell in self.cells:
-            if self.test_colour_adjacent(cell, 1):
+            if self.test_colour_adjacent(cell, 1) and cell.merge:
                 pygame.draw.line(background, cell.colour, (cell.rect.right, cell.rect.top), (cell.rect.right, cell.rect.bottom -1))
     
     def set_random_same(self, background):
         set_count = grid - len(set_colours)
         merge_count = int(set_count * 0.2)
         for i in range(merge_count):
-            index = random.randint(1,grid_size-2)
+            index = random.randint(1,grid-2)
             curr = self.cells[index]   # select random cell from row
-            print("hannah")
-            print(curr.colour)
             direction = random.choice([1,-1])
-            print(self.test_colour_adjacent(curr, direction))
             while self.test_colour_adjacent(curr, direction):
                 index += direction
                 curr = self.cells[index]
             new_colour = curr.colour
             adj_colour = self.get_colour_adjacent(curr, direction)
-            print(adj_colour)
+
             if adj_colour == border_colour:
                 return
+            curr.merge=True
             set_colours.append(adj_colour)
             while self.get_colour_adjacent(curr,direction) == adj_colour:
                 index += direction
@@ -125,8 +133,7 @@ class Row():
     def draw(self, background):
         for cell in self.cells:
             background.fill(cell.colour, rect=cell.rect)
-            print(cell.colour)
-        print("bbbbbbbbbbbbbbbbbbbbbbbbbbooooooooooooobbbbb")
+            
 
         
 
@@ -179,14 +186,11 @@ def main():
         current_cell = None
    
     else:
-        row = Row(1)
-        row.draw(background)
-        wait()
-        row.set_random_same(background)
-        wait()
-        row.merge_same_horizontal(background)
-        wait()
-        row.draw(background)
+        i = 1
+        row = Row(i, None)
+        
+        
+
     # Blit everything to the screen
     screen.blit(background, (0, 0))
     pygame.display.flip()
@@ -221,8 +225,22 @@ def main():
                 algorithms.recursive_backtracker(current_cell, background)
         
         if not recursive:
+            if i < (40):
+                row.draw(background)
+                wait()
+                row.set_random_same(background)
+                row.draw(background)
+                wait()
+                row.merge_same_horizontal(background)
+                row.draw(background)
+                prev = row
+                print(i)
+                wait()
+                row = Row(i,prev)
+                row.draw(background)
+                wait()
+                
             
-                pass
            
             
 
