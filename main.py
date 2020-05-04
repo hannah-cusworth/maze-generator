@@ -70,6 +70,7 @@ class Row():
         border.colour = border_colour
         self.border = border
         self.cells = [border]
+        self.lines = []
 
         for i in range(1, grid-1):
             new = Cell(i, y)
@@ -106,6 +107,7 @@ class Row():
         for cell in self.cells:
             if self.test_colour_adjacent(cell, 1) and cell.merge:
                 pygame.draw.line(background, cell.colour, (cell.rect.right, cell.rect.top), (cell.rect.right, cell.rect.bottom -1))
+                self.lines.append(((cell.rect.right, cell.rect.top), (cell.rect.right, cell.rect.bottom -1)))
     
     def set_random_same(self, background):
         set_count = grid - len(set_colours)
@@ -137,8 +139,11 @@ class Row():
 
         
 
-    def merge_vertical(self, background, row):
-        pass
+    def merge_vertical(self, prev, background):
+        for x, cell in enumerate(self.cells):
+            if cell.colour == prev.cells[x].colour:
+                pygame.draw.line(background, cell.colour, (cell.rect.left, cell.rect.top - 1), (cell.rect.right - 1, cell.rect.top - 1))
+
 
     
             
@@ -225,7 +230,7 @@ def main():
                 algorithms.recursive_backtracker(current_cell, background)
         
         if not recursive:
-            if i < (40):
+            if i < (30):
                 row.draw(background)
                 wait()
                 row.set_random_same(background)
@@ -234,11 +239,13 @@ def main():
                 row.merge_same_horizontal(background)
                 row.draw(background)
                 prev = row
-                print(i)
                 wait()
+                i += 1
                 row = Row(i,prev)
                 row.draw(background)
                 wait()
+                row.merge_vertical(prev, background)
+                row.draw(background)
                 
             
            
