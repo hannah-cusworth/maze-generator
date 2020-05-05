@@ -59,26 +59,30 @@ class Cell():
         self.rect = Rect((grid_size * x) + 1, (grid_size * y) + 1, grid_size-1, grid_size-1)
         self.colour = None
         self.index = x
-        self.merge = False
+
+class Line():
+    def __init__(self, line, colour):
+        self.rect = line
+        self.colour = colour
         
         
 
     
 class Row():
-    def __init__(self, y, prev):
+    def __init__(self, y, prev, background):
         self.y = (grid_size * y) + 1 
         border = Cell(0,y)
         border.colour = border_colour
         self.border = border
         self.cells = [border]
         self.lines = []
+        self.merged = {}
         
 
         for i in range(1, grid-1):
             new = Cell(i, y)
             if y == 1:
                 new.colour = set_colours[0]
-                
             else: 
                 triple = self.get_triple(i, prev)
                 adj_colour = triple[1]
@@ -87,9 +91,10 @@ class Row():
                     new.colour = random.choice([adj_colour, random.choice(set_colours)])   
                 else:
                     new.colour = adj_colour
-                    new.connected = True
-
-            try:      
+                    rect = pygame.draw.line(background, new.colour, (new.rect.left, new.rect.top - 1), (new.rect.right - 1, new.rect.top - 1))
+                    line = Line(rect, new.colour)
+                    self.lines.append(line)
+            try:                
                 index = set_colours.index(new.colour)
                 set_colours.pop(index)
             except:
@@ -107,10 +112,20 @@ class Row():
     def get_triple(self, i, prev):
         return [self.cells[i-1].colour , prev.cells[i].colour, prev.cells[i+1].colour]
     
-    def merge_same_horizontal(self, background):
+    
+    def merge_cells(self, background, merged):
         for cell in self.cells:
-            if self.test_colour_adjacent(cell, 1) and cell.merge:
-                pygame.draw.line(background, cell.colour, (cell.rect.right, cell.rect.top), (cell.rect.right, cell.rect.bottom -1))
+            if cell.colour in merged.keys():
+                cell.colour=merged.get(cell.colour)
+            
+        for line in self.lines:
+            if line.colour in merged.keys():
+                line.colour=merged.get(line.colour)
+
+
+    
+    
+    
     
     def set_random_same(self, background):
         set_count = grid - len(set_colours)
@@ -118,40 +133,35 @@ class Row():
         for i in range(merge_count):
             index = random.randint(1,grid-2)
             curr = self.cells[index]   # select random cell from row
-            direction = random.choice([1,-1])
-            while self.test_colour_adjacent(curr, direction):
-                index += direction
-                curr = self.cells[index]
+            
+            
             new_colour = curr.colour
-            adj_colour = self.get_colour_adjacent(curr, direction)
-
+            adj_colour = self.get_colour_adjacent(curr, 1)
             if adj_colour == border_colour:
-                return
-            curr.merge=True
+                break
+            rect = pygame.draw.line(background, curr.colour, (curr.rect.right, curr.rect.top), (curr.rect.right, curr.rect.bottom - 1))
+            line = Line(rect, new_colour)
+            self.lines.append(line)
             set_colours.append(adj_colour)
-            while self.get_colour_adjacent(curr,direction) == adj_colour:
-                index += direction
-                curr = self.cells[index]
-                curr.colour = new_colour
+            self.merged[adj_colour] = new_colour
+            
         
     
     def draw(self, background):
         for cell in self.cells:
             background.fill(cell.colour, rect=cell.rect)
+        for line in self.lines:
+            background.fill(line.colour, rect=line)
 
             
     def finish(self, background):
         for cell in self.cells:
             background.fill(final_colour, rect=cell.rect)
         for line in self.lines:
-            background.fill(final_colour, rect=cell.rect)
+            background.fill(final_colour, rect=line.rect)
 
 
-    def merge_vertical(self, prev, background):
-        for x, cell in enumerate(self.cells):
-            if cell.colour == prev.cells[x].colour:
-                line = line(background, cell.colour, (cell.rect.left, cell.rect.top - 1), (cell.rect.right - 1, cell.rect.top - 1))
-                self.lines.append(line)
+    
 
     
             
@@ -200,7 +210,10 @@ def main():
    
     else:
         i = 1
-        row = Row(i, None)
+        row = Row(i, None, background)
+        row.set_random_same(background)
+        row.merge_cells(background, row.merged)
+        
         
         
 
@@ -238,22 +251,25 @@ def main():
                 algorithms.recursive_backtracker(current_cell, background)
         
         if not recursive:
-            if i < (3):
+            if i < (20):
                 row.draw(background)
                 wait()
-                row.set_random_same(background)
-                row.draw(background)
-                wait()
-                #row.merge_same_horizontal(background)
-                #row.draw(background)
-                prev = row
-                wait()
+                if i > 1:
+                    prev.finish(background)
                 i += 1
-                row = Row(i,prev)
+                
+                prev = row
+                row = Row(i,prev, background)
                 row.draw(background)
-                #wait()
-                #row.merge_vertical(prev, background)
-                #row.draw(background)
+                wait()
+
+                row.set_random_same(background)           
+                row.merge_cells(background, row.merged)
+                prev.merge_cells(background, row.merged)
+
+                
+                row.draw(background)
+                
                 
             
            
