@@ -156,7 +156,8 @@ class Row():
             
     def finish(self, background):
         for cell in self.cells:
-            background.fill(final_colour, rect=cell.rect)
+            if cell.colour != border_colour:
+                background.fill(final_colour, rect=cell.rect)
         for line in self.lines:
             background.fill(final_colour, rect=line.rect)
 
