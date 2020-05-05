@@ -28,7 +28,7 @@ current_colour = (0,255,0,255)
 set_colours = [(random.randint(1,255), random.randint(1,255), random.randint(1,255), 255) for bob in range(grid-1)] # keep between 1 and 255 to exclude border/grid/background
 
 # Timings
-wait_time = 800
+wait_time = 100
 
 
 # Control set up 
@@ -61,6 +61,7 @@ class Cell():
         self.index = x
         self.merge = False
         
+        
 
     
 class Row():
@@ -71,6 +72,7 @@ class Row():
         self.border = border
         self.cells = [border]
         self.lines = []
+        
 
         for i in range(1, grid-1):
             new = Cell(i, y)
@@ -80,11 +82,13 @@ class Row():
             else: 
                 triple = self.get_triple(i, prev)
                 adj_colour = triple[1]
-                if triple[2] == adj_colour or (triple[0] == adj_colour and self.cells[i-1].colour == adj_colour):
-                    new.colour = random.choice([adj_colour, random.choice(set_colours)])
-                    
-                else: 
-                    new.colour = adj_colour 
+                
+                if triple[2] == adj_colour or triple[0] == adj_colour:
+                    new.colour = random.choice([adj_colour, random.choice(set_colours)])   
+                else:
+                    new.colour = adj_colour
+                    new.connected = True
+
             try:      
                 index = set_colours.index(new.colour)
                 set_colours.pop(index)
@@ -101,13 +105,12 @@ class Row():
         return self.cells[cell.index + dx].colour
     
     def get_triple(self, i, prev):
-        return [prev.cells[i -1].colour, prev.cells[i].colour, prev.cells[i+1].colour]
+        return [self.cells[i-1].colour , prev.cells[i].colour, prev.cells[i+1].colour]
     
     def merge_same_horizontal(self, background):
         for cell in self.cells:
             if self.test_colour_adjacent(cell, 1) and cell.merge:
                 pygame.draw.line(background, cell.colour, (cell.rect.right, cell.rect.top), (cell.rect.right, cell.rect.bottom -1))
-                self.lines.append(((cell.rect.right, cell.rect.top), (cell.rect.right, cell.rect.bottom -1)))
     
     def set_random_same(self, background):
         set_count = grid - len(set_colours)
@@ -135,15 +138,20 @@ class Row():
     def draw(self, background):
         for cell in self.cells:
             background.fill(cell.colour, rect=cell.rect)
-            
 
-        
+            
+    def finish(self, background):
+        for cell in self.cells:
+            background.fill(final_colour, rect=cell.rect)
+        for line in self.lines:
+            background.fill(final_colour, rect=cell.rect)
+
 
     def merge_vertical(self, prev, background):
         for x, cell in enumerate(self.cells):
             if cell.colour == prev.cells[x].colour:
-                pygame.draw.line(background, cell.colour, (cell.rect.left, cell.rect.top - 1), (cell.rect.right - 1, cell.rect.top - 1))
-
+                line = line(background, cell.colour, (cell.rect.left, cell.rect.top - 1), (cell.rect.right - 1, cell.rect.top - 1))
+                self.lines.append(line)
 
     
             
@@ -230,22 +238,22 @@ def main():
                 algorithms.recursive_backtracker(current_cell, background)
         
         if not recursive:
-            if i < (30):
+            if i < (3):
                 row.draw(background)
                 wait()
                 row.set_random_same(background)
                 row.draw(background)
                 wait()
-                row.merge_same_horizontal(background)
-                row.draw(background)
+                #row.merge_same_horizontal(background)
+                #row.draw(background)
                 prev = row
                 wait()
                 i += 1
                 row = Row(i,prev)
                 row.draw(background)
-                wait()
-                row.merge_vertical(prev, background)
-                row.draw(background)
+                #wait()
+                #row.merge_vertical(prev, background)
+                #row.draw(background)
                 
             
            
