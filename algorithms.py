@@ -1,5 +1,11 @@
 from main import *
 
+def setup_recursive(background):
+    background.fill(background_colour)
+    draw_grid(background)
+    draw_border(background)
+    #background.fill(start_colour, rect=highlighted_cell)
+
 def recursive_backtracker(current, background):
      
     # Define directions: [(dx,dy), traversed border coord 1, traversed border coord 2]
@@ -28,9 +34,7 @@ def recursive_backtracker(current, background):
             background.fill(current_colour, rect=current.rect)
             pygame.draw.line(background, cell_colour, move[1], move[2])  # Erase traversed border
             
-            time = pygame.time.get_ticks()                      # Wait
-            while pygame.time.get_ticks() < time + wait_time: 
-                pass
+            wait()
             return
 
     # If there are no available cells, retrace path and fill new colour.
@@ -43,10 +47,17 @@ def recursive_backtracker(current, background):
             current.rect.move_ip(move[0])
             background.fill(current_colour, rect=current.rect)
             pygame.draw.line(background, final_colour, move[1], move[2])
-            time = pygame.time.get_ticks()                      # Wait
-            while pygame.time.get_ticks() < time + wait_time: 
-                pass
+            wait()
             return
 
-def ellers_algorithm(current, background, row):
-    pass
+def setup_ellers(background, row):
+    background.fill(grid_colour)  
+    draw_border(background)
+    row.set_random_same(background)
+    row.merge_cells(background, row.merged)
+
+def ellers_algorithm(background, row, prev):
+    global iterator
+    
+    
+    return row, prev

@@ -1,11 +1,13 @@
 import tkinter as tk
 import tkinter.font as tkFont
 
-algorithm_list = (
-            "Algorithm 1",
-            "Algorithm 2",
+# Algorithms
+algorithm_list = [
+            "Recursive Backtracker",
+            "Eller's Algorithm",
             "Algorithm 3",
-)
+            ]
+
 # Padding
 x = 50
 y = 50
@@ -92,6 +94,7 @@ class AlgoSelectWindow():
         self.choice = self.select_variable.get()
         if self.choice:
             self.quit()
+            
     
     def quit(self):
         self.window.destroy()

@@ -29,10 +29,12 @@ set_colours = [(random.randint(1,255), random.randint(1,255), random.randint(1,2
 
 # Timings
 wait_time = 100
+global iterator 
+iterator = 1
 
-
-# Control set up 
+# Algorithms
 recursive = False
+ellers = False
     
 def draw_grid(background):
 
@@ -47,9 +49,19 @@ def draw_border(background):
     pygame.draw.rect(background, border_colour, border, border_width)
 
 def wait():
-    time = pygame.time.get_ticks()                      # Wait
-    while pygame.time.get_ticks() < time + wait_time: 
+    time = pygame.time.get_ticks()                      
+    while pygame.time.get_ticks() < time + wait_time: # Wait
         pass
+
+def select_start(background, highlighted_cell):
+    background.fill(background_colour, rect=highlighted_cell)
+    x = int((mouse[0] - 1) / grid_size)
+    y = int((mouse[1] - 1)/ grid_size)
+    highlighted_cell = Cell(x,y)
+    background.fill(start_colour, rect=highlighted_cell)
+    return highlighted_cell
+
+        
 
 
 class Cell():
@@ -64,10 +76,7 @@ class Line():
     def __init__(self, line, colour):
         self.rect = line
         self.colour = colour
-        
-        
-
-    
+  
 class Row():
     def __init__(self, y, prev, background):
         self.y = (grid_size * y) + 1 
@@ -91,6 +100,7 @@ class Row():
                     new.colour = random.choice([adj_colour, random.choice(set_colours)])   
                 else:
                     new.colour = adj_colour
+                if new.colour == adj_colour:
                     rect = pygame.draw.line(background, new.colour, (new.rect.left, new.rect.top - 1), (new.rect.right - 1, new.rect.top - 1))
                     line = Line(rect, new.colour)
                     self.lines.append(line)
@@ -112,7 +122,6 @@ class Row():
     def get_triple(self, i, prev):
         return [self.cells[i-1].colour , prev.cells[i].colour, prev.cells[i+1].colour]
     
-    
     def merge_cells(self, background, merged):
         for cell in self.cells:
             if cell.colour in merged.keys():
@@ -120,17 +129,13 @@ class Row():
             
         for line in self.lines:
             if line.colour in merged.keys():
-                line.colour=merged.get(line.colour)
-
-
-    
-    
-    
+                line.colour=merged.get(line.colour)    
     
     def set_random_same(self, background):
-        set_count = grid - len(set_colours)
-        merge_count = int(set_count * 0.2)
-        for i in range(merge_count):
+        #set_count = grid - len(set_colours)
+        #merge_count = int(set_count * 0.5)
+        #for i in range(merge_count):
+        for i in range(30):
             index = random.randint(1,grid-2)
             curr = self.cells[index]   # select random cell from row
             
@@ -144,8 +149,6 @@ class Row():
             self.lines.append(line)
             set_colours.append(adj_colour)
             self.merged[adj_colour] = new_colour
-            
-        
     
     def draw(self, background):
         for cell in self.cells:
@@ -180,7 +183,7 @@ class Row():
 
 
 def main():
-    pygame.init()
+    global iterator
     # Initialise screen
     screen = pygame.display.set_mode((screenx, screeny))
     pygame.display.set_caption('Visualiser')
@@ -189,43 +192,33 @@ def main():
     allowed = [MOUSEBUTTONUP, MOUSEBUTTONDOWN]
     pygame.event.set_allowed(allowed)
 
+    # Launch window and define selected algorithm
+    popup = window.AlgoSelectWindow()
+    algorithm = popup.choice
+    if algorithm == window.algorithm_list[0]:
+        global recursive
+        recursive = True
+    elif algorithm == window.algorithm_list[1]:
+        global ellers
+        ellers = True
+
     # Create background and draw grid
     background = pygame.Surface(screen.get_size())
     background.convert()
     
     if recursive:
-        background.fill(background_colour)
-        draw_grid(background)
-    if not recursive:
-        background.fill(grid_colour)
-        
-       
-    draw_border(background)
-    
-
-    # Set up start
-    if recursive:
-        highlighted_cell = Cell(48,1)
-        background.fill(start_colour, rect=highlighted_cell)
+        algorithms.setup_recursive(background)
         current_cell = None
-   
-    else:
-        i = 1
-        row = Row(i, None, background)
-        row.set_random_same(background)
-        row.merge_cells(background, row.merged)
+        highlighted_cell = Cell(48,1)
         
-        
-        
-
+    elif ellers:
+        row = Row(iterator, None, background)
+        prev = None
+        algorithms.setup_ellers(background, row)
+ 
     # Blit everything to the screen
     screen.blit(background, (0, 0))
     pygame.display.flip()
-
-    # Launch window and define selected algorithm
-    '''popup = window.AlgoSelectWindow()
-    algorithm = popup.choice
-    print(algorithm)'''
 
     # Game loop
     while True:
@@ -233,34 +226,33 @@ def main():
             if event.type == QUIT:
                 return
             if recursive:
+                mouse = pygame.mouse.get_pos()
+                colour = background.get_at(mouse)
                 if event.type == MOUSEBUTTONDOWN and colour != border_colour:
                     current_cell = highlighted_cell
         if recursive:
             if not current_cell:
-                mouse = pygame.mouse.get_pos()
-                colour = background.get_at(mouse)
                 if colour == background_colour:
                     background.fill(background_colour, rect=highlighted_cell)
                     x = int((mouse[0] - 1) / grid_size)
                     y = int((mouse[1] - 1)/ grid_size)
                     highlighted_cell = Cell(x,y)
-                    background.fill(start_colour, rect=highlighted_cell)
-                    screen.blit(background, (0,0))
-            
+                    background.fill(start_colour, rect=highlighted_cell)    
             else:
                 background.fill(start_colour, current_cell.start)
                 algorithms.recursive_backtracker(current_cell, background)
         
         if not recursive:
-            if i < (20):
+
+            if iterator < (screeny/50 - 1):
                 row.draw(background)
                 wait()
-                if i > 1:
+                if iterator > 1:
                     prev.finish(background)
-                i += 1
+                iterator += 1
                 
                 prev = row
-                row = Row(i,prev, background)
+                row = Row(iterator,prev, background)
                 row.draw(background)
                 wait()
 
@@ -270,8 +262,11 @@ def main():
 
                 
                 row.draw(background)
-                
-                
+            else:
+                row.finish(background)
+                prev.finish(background)
+                    
+                        
             
            
             
