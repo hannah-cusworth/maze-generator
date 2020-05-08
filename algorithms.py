@@ -1,4 +1,5 @@
 from main import *
+global background
 
 def setup_recursive(background):
     background.fill(background_colour)
@@ -77,7 +78,6 @@ def ellers_algorithm(background, row):
                 wait()
 
                 prev.finish(background)
-                print(prev.cells[4].colour)
                 iterator += 1
                 wait()
 
