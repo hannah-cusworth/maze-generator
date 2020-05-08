@@ -68,12 +68,13 @@ class AlgoSelectWindow():
 
         select_widget.configure(
             font=listfont, 
-            width=20, 
+            width=30, 
             height=2, 
             bg="white",
             )
         menu = select_widget.nametowidget(select_widget.menuname)     # Get dropdown menu
-        menu.configure(font=(listfont))                                     # Set font size of menu
+        menu.configure(font=(listfont))                               # Set font size of menu
+    
         select_widget.pack()
 
         # Information frame

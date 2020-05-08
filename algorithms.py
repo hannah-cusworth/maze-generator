@@ -55,9 +55,32 @@ def setup_ellers(background, row):
     draw_border(background)
     row.set_random_same(background)
     row.merge_cells(background, row.merged)
+    row.draw(background)
+    wait()
 
-def ellers_algorithm(background, row, prev):
+def ellers_algorithm(background, row):
     global iterator
-    
-    
-    return row, prev
+    if iterator < (screeny/50):
+                row.draw(background)
+                prev = row              
+                row = Row(iterator, prev, background)
+                row.draw(background)
+                wait()
+                
+                row.set_random_same(background)
+                row.draw(background)
+         
+                row.merge_cells(background, row.merged)
+                prev.merge_cells(background, row.merged)
+                row.draw(background)
+                prev.draw(background)
+                wait()
+
+                prev.finish(background)
+                print(prev.cells[4].colour)
+                iterator += 1
+                wait()
+
+    else:
+        row.finish(background)
+    return row

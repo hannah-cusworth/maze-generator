@@ -213,8 +213,8 @@ def main():
         
     elif ellers:
         row = Row(iterator, None, background)
-        prev = None
         algorithms.setup_ellers(background, row)
+        iterator += 1
  
     # Blit everything to the screen
     screen.blit(background, (0, 0))
@@ -243,28 +243,8 @@ def main():
                 algorithms.recursive_backtracker(current_cell, background)
         
         if not recursive:
-
-            if iterator < (screeny/50 - 1):
-                row.draw(background)
-                wait()
-                if iterator > 1:
-                    prev.finish(background)
-                iterator += 1
-                
-                prev = row
-                row = Row(iterator,prev, background)
-                row.draw(background)
-                wait()
-
-                row.set_random_same(background)           
-                row.merge_cells(background, row.merged)
-                prev.merge_cells(background, row.merged)
-
-                
-                row.draw(background)
-            else:
-                row.finish(background)
-                prev.finish(background)
+            row = algorithms.ellers_algorithm(background, row)
+            
                     
                         
             
