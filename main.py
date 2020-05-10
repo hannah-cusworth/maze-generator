@@ -1,9 +1,8 @@
-import numpy as np
 import pygame
 import window
-import algorithms
-import random
 import helpers
+import algorithms
+
 
 pygame.init()
 
@@ -23,30 +22,21 @@ cell_colour = (200,200,200, 255)
 start_colour = (0,0,255, 255)
 final_colour = (255, 255, 255, 255)
 current_colour = (0,255,0,255)
-    
-
-set_colours = [(random.randint(1,255), random.randint(1,255), random.randint(1,255), 255) for bob in range(grid-1)] # keep between 1 and 255 to exclude border/grid/background
 
 # Timings
-wait_time = 100
-global iterator 
-iterator = 1
+wait_time = 1000
+
 
 # Algorithms
 recursive = False
 ellers = False
-
+ 
 def main():
-    global iterator
-    global background
-   
     # Initialise screen
     pygame.display.set_caption('Visualiser')
     screen = pygame.display.set_mode((screenx, screeny))
     background = pygame.Surface(screen.get_size())
     background.convert()
-    
-
 
     # Set events
     allowed = [pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN]
@@ -69,9 +59,9 @@ def main():
         highlighted_cell = helpers.Cell(48,1)
         
     elif ellers:
+        iterator = 1
         row = helpers.Row(iterator, None, background)
         algorithms.setup_ellers(background, row)
-        iterator += 1
  
     # Blit everything to the screen
     screen.blit(background, (0, 0))
@@ -100,7 +90,10 @@ def main():
                 algorithms.recursive_backtracker(current_cell, background)
         
         if ellers:
-            row = algorithms.ellers_algorithm(background, row)
+
+            iterator += 1
+            row = algorithms.ellers_algorithm(iterator, background, row)
+
             
         screen.blit(background, (0, 0))
         pygame.display.update()

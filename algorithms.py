@@ -58,14 +58,18 @@ def setup_ellers(background, row):
     helpers.draw_border(background)
     row.set_random_same(background)
     row.merge_cells(background, row.merged)
-    row.draw(background)
+    row.draw(background) 
     helpers.wait()
 
-def ellers_algorithm(background, row):
-    if main.iterator < (main.screeny/50):
+def ellers_algorithm(iterator, background, row):
+    if iterator < (main.screeny/50):
+                print("ffffffffffffffffff")
+                print(helpers.colour_set.length())
+                print(iterator)
+                print("ffffffffffffffff")
                 row.draw(background)
                 prev = row              
-                row = helpers.Row(main.iterator, prev, background)
+                row = helpers.Row(iterator, prev, background)
                 row.draw(background)
                 helpers.wait()
                 
@@ -78,8 +82,7 @@ def ellers_algorithm(background, row):
                 prev.draw(background)
                 helpers.wait()
 
-                prev.finish(background)
-                main.iterator += 1
+                #prev.finish(background)
                 helpers.wait()
 
     else:
