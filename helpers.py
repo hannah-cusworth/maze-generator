@@ -41,22 +41,35 @@ class ColourSet():
 
 class Cell():
     def __init__(self, x, y):
-        self.start = pygame.Rect((main.grid_size * x) + 1, (main.grid_size * y) + 1, main.grid_size-1, main.grid_size-1)
+        #self.start = pygame.Rect((main.grid_size * x) + 1, (main.grid_size * y) + 1, main.grid_size-1, main.grid_size-1)
         self.coord = (x,y)
         self.rect = pygame.Rect((main.grid_size * x) + 1, (main.grid_size * y) + 1, main.grid_size-1, main.grid_size-1)
         self.colour = None
         self.index = x
 
-    def get_border(self, border):
+    def get_grid(self, edge): # -> pygame.Rect
         surf = pygame.Surface((main.screenx, main.screeny))
-        borders = {
+        edges = {
             "top": ((self.rect.left, self.rect.top - 1), (self.rect.right - 1, self.rect.top - 1)),
             "bottom": ((self.rect.left, self.rect.bottom), (self.rect.right - 1, self.rect.bottom)),
             "right": ((self.rect.right, self.rect.top), (self.rect.right, self.rect.bottom - 1)),
             "left": ((self.rect.left - 1, self.rect.top), (self.rect.left - 1, self.rect.bottom - 1))
         }
-        x, y = borders[border]
+        x, y = edges[edge]
         return pygame.draw.line(surf, main.cell_colour, x, y)
+
+    def draw_grid(self, edge, colour, background) -> None:
+        grid = self.get_grid(edge)
+        background.fill(colour,rect=grid)
+
+    def get_colour_adjacent(self, coords, background): # coords: (dx,dy)
+        test = Cell((self.coord[0] + coords[0]), (self.coord[1] + coords[1]))
+        return background.get_at((test.rect.center))
+
+    def get_grid_colour(self, edge, background):
+        grid = self.get_grid(edge)
+        return background.get_at((grid.center))
+
 
 class Line():
     def __init__(self, line, colour):
@@ -69,7 +82,7 @@ class Row():
     def __init__(self, iterator, prev, background):
         border = Cell(0,iterator)
         border.colour = main.border_colour
-        
+
         self.y = (main.grid_size * iterator) + 1 
         self.border = border
         self.cells = [self.border]
@@ -106,14 +119,14 @@ class Row():
 
                 # If vertical connection, remove grid border
                 if new.colour == prev_colour:
-                    border = new.get_border("top")
-                    self.lines.append(Line(border, new.colour))              
+                    grid = new.get_grid("top")
+                    self.lines.append(Line(grid, new.colour))              
             
             self.cells.append(new)
   
         self.cells.append(self.border)
           
-    def test_colour_adjacent(self, cell, dx):
+    def test_colour_adjacent(self, cell, dx) -> bool:
         adjacent_colour = self.cells[cell.index+dx].colour
         return adjacent_colour == cell.colour
 
@@ -137,7 +150,7 @@ class Row():
                 changed[cell.colour] = adjacent_colour
                 colour_set.enqueue(cell.colour)
                 cell.colour = adjacent_colour
-                border = cell.get_border("left")
+                border = cell.get_grid("left")
                 self.lines.append(Line(border, cell.colour))
         
 
@@ -150,8 +163,8 @@ class Row():
                     cell.colour = colour_set.dequeue()
                 else:
                     cell.colour = adjacent_colour
-                    border = cell.get_border("right")
-                    self.lines.append(Line(border, cell.colour))
+                    grid = cell.get_grid("right")
+                    self.lines.append(Line(grid, cell.colour))
 
     def draw(self, background):
         for cell in self.cells:
@@ -170,6 +183,6 @@ class Row():
         final_set = self.cells[1].colour
         for cell in self.cells:
             if cell.colour != final_set:
-                border = cell.get_border("right")
-                self.lines.append(Line(border, cell.colour))
+                grid = cell.get_grid("right")
+                self.lines.append(Line(grid, cell.colour))
         self.clear(background)

@@ -24,7 +24,7 @@ final_colour = (255, 255, 255, 255)
 current_colour = (0,255,0,255)
 
 # Timings
-wait_time = 200
+wait_time = 2
 
 # Algorithms
 recursive = False
@@ -75,7 +75,7 @@ def main():
                 mouse = pygame.mouse.get_pos()
                 colour = background.get_at(mouse)
                 if event.type == pygame.MOUSEBUTTONDOWN and colour != border_colour:
-                    current_cell = highlighted_cell
+                    current_cell = highlighted_cell 
         if recursive:
             if not current_cell:
                 if colour == background_colour:
@@ -83,11 +83,18 @@ def main():
                     x = int((mouse[0] - 1) / grid_size)
                     y = int((mouse[1] - 1)/ grid_size)
                     highlighted_cell = helpers.Cell(x,y)
-                    background.fill(start_colour, rect=highlighted_cell)    
+                    background.fill(start_colour, rect=highlighted_cell)
+                    fill_start = True
+                    start_cell = highlighted_cell
             else:
-                background.fill(start_colour, current_cell.start)
-                algorithms.recursive_backtracker(current_cell, background)
-        
+
+                current_cell = algorithms.recursive_backtracker(current_cell, background)
+                
+                if fill_start == True:
+                    background.fill(start_colour, rect=start_cell)
+                    fill_start = False
+
+                
         if ellers:
 
             iterator += 1
