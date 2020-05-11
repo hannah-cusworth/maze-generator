@@ -24,6 +24,7 @@ class ColourSet():
         self.all = []
         for i in range(main.grid - 2):
             # keep between 1 and 255 to exclude border/grid/background
+            random.seed()
             self.all.append((random.randint(1,255), random.randint(1,255), random.randint(1,255), 255))
         self.queue = self.all
 
@@ -44,8 +45,18 @@ class Cell():
         self.coord = (x,y)
         self.rect = pygame.Rect((main.grid_size * x) + 1, (main.grid_size * y) + 1, main.grid_size-1, main.grid_size-1)
         self.colour = None
-        self.new = None
         self.index = x
+
+    def get_border(self, border):
+        surf = pygame.Surface((main.screenx, main.screeny))
+        borders = {
+            "top": ((self.rect.left, self.rect.top - 1), (self.rect.right - 1, self.rect.top - 1)),
+            "bottom": ((self.rect.left, self.rect.bottom), (self.rect.right - 1, self.rect.bottom)),
+            "right": ((self.rect.right, self.rect.top), (self.rect.right, self.rect.bottom - 1)),
+            "left": ((self.rect.left - 1, self.rect.top), (self.rect.left - 1, self.rect.bottom - 1))
+        }
+        x, y = borders[border]
+        return pygame.draw.line(surf, main.cell_colour, x, y)
 
 class Line():
     def __init__(self, line, colour):
@@ -75,10 +86,11 @@ class Row():
                 
                 if triple[2] == prev_colour or triple[0] == prev_colour:
                     probability = [0, 1, 1, 1]
+                    random.seed()
                     choice = random.choice(probability)
                     if choice:
-                        new.colour = colour_set.dequeue()
-                        print(new.colour)
+                        new.colour = main.background_colour
+                    
                     else:
                         new.colour = prev_colour
 
@@ -100,33 +112,33 @@ class Row():
     
     def get_triple(self, i, prev):
         return [self.cells[i-1].colour , prev.cells[i].colour, prev.cells[i+1].colour]
-    
-    def merge_cells(self, background, merged):
+
+    def random_merge(self, background):
+        changed = {}
+        for cell in self.cells[2:49]:
+            adjacent_colour = self.get_colour_adjacent(cell, -1)
+            if adjacent_colour == main.background_colour or cell.colour == main.background_colour:
+                continue
+            if cell.colour in changed.keys():
+                cell.colour = changed[cell.colour]
+            elif random.randint(0,1) and not self.test_colour_adjacent(cell, -1):
+                changed[cell.colour] = adjacent_colour
+                colour_set.enqueue(cell.colour)
+                cell.colour = adjacent_colour
+                border = cell.get_border("left")
+                self.lines.append(Line(border, cell.colour))
+
+    def fill_empty(self, background):
         for cell in self.cells:
-            if cell.colour in merged.keys():
-                cell.colour = merged.get(cell.colour)
-            
-        for line in self.lines:
-            if line.colour in merged.keys():
-                line.colour = merged.get(line.colour)    
-    
-    def set_random_same(self, background):
-        #set_count = grid - len(colour_set)
-        #merge_count = int(set_count * 0.5)
-        #for i in range(merge_count):
-        for i in range(30):
-            curr = random.choice(self.cells)   # select random cell from row
-            
-            new_colour = curr.colour
-            replace_colour = self.get_colour_adjacent(curr, 1)
-            if replace_colour == main.border_colour or curr.colour == main.border_colour:
-                return
-            rect = pygame.draw.line(background, curr.colour, (curr.rect.right, curr.rect.top), (curr.rect.right, curr.rect.bottom - 1))
-            line = Line(rect, new_colour)
-            self.lines.append(line)
-            colour_set.enqueue(replace_colour)
-            self.merged[replace_colour] = new_colour
-    
+            adjacent_colour = self.get_colour_adjacent(cell, 1)
+            if cell.colour == main.background_colour:
+                if random.randint(0,1) or adjacent_colour == main.border_colour:
+                    cell.colour = colour_set.dequeue()
+                else:
+                    cell.colour = adjacent_colour
+                    border = cell.get_border("right")
+                    self.lines.append(Line(border, cell.colour))
+
     def draw(self, background):
         for cell in self.cells:
             background.fill(cell.colour, rect=cell.rect)

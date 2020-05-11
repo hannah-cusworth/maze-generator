@@ -24,8 +24,7 @@ final_colour = (255, 255, 255, 255)
 current_colour = (0,255,0,255)
 
 # Timings
-wait_time = 1000
-
+wait_time = 200
 
 # Algorithms
 recursive = False

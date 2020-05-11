@@ -56,34 +56,32 @@ def recursive_backtracker(current, background):
 def setup_ellers(background, row):
     background.fill(main.grid)  
     helpers.draw_border(background)
-    row.set_random_same(background)
-    row.merge_cells(background, row.merged)
+    row.draw(background)
+    helpers.wait()
+
+    row.random_merge(background)
     row.draw(background) 
     helpers.wait()
 
 def ellers_algorithm(iterator, background, row):
     if iterator < (main.screeny/50):
-                print("ffffffffffffffffff")
-                print(helpers.colour_set.length())
-                print(iterator)
-                print("ffffffffffffffff")
                 row.draw(background)
                 prev = row              
                 row = helpers.Row(iterator, prev, background)
                 row.draw(background)
                 helpers.wait()
                 
-                row.set_random_same(background)
+                row.random_merge(background)
                 row.draw(background)
-         
-                row.merge_cells(background, row.merged)
-                prev.merge_cells(background, row.merged)
-                row.draw(background)
-                prev.draw(background)
                 helpers.wait()
 
-                #prev.finish(background)
+                row.fill_empty(background)
+                row.draw(background)
                 helpers.wait()
+
+                prev.finish(background)
+                helpers.wait()
+
 
     else:
         row.finish(background)
