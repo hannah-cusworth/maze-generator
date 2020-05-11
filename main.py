@@ -17,7 +17,7 @@ border_width = grid_size*2 # note that because the border grows either side of l
 # Colours
 background_colour = (160,160,160, 255)
 grid_colour = (0,0,0,255)
-border_colour = (255, 0, 0, 255)
+border_colour = grid_colour
 cell_colour = (200,200,200, 255)
 start_colour = (0,0,255, 255)
 final_colour = (255, 255, 255, 255)

@@ -65,6 +65,7 @@ def setup_ellers(background, row):
 
 def ellers_algorithm(iterator, background, row):
     if iterator < (main.screeny/50):
+
                 row.draw(background)
                 prev = row              
                 row = helpers.Row(iterator, prev, background)
@@ -79,10 +80,8 @@ def ellers_algorithm(iterator, background, row):
                 row.draw(background)
                 helpers.wait()
 
-                prev.finish(background)
+                prev.clear(background)
                 helpers.wait()
-
-
     else:
         row.finish(background)
     return row

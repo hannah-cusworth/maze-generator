@@ -67,41 +67,51 @@ colour_set = ColourSet()
 
 class Row():
     def __init__(self, iterator, prev, background):
-        self.y = (main.grid_size * iterator) + 1 
         border = Cell(0,iterator)
         border.colour = main.border_colour
+        
+        self.y = (main.grid_size * iterator) + 1 
         self.border = border
-        self.cells = [border]
+        self.cells = [self.border]
         self.lines = []
         self.merged = {}
         
 
         for i in range(1, main.grid-1):
             new = Cell(i, iterator)
+
+            # Initiate first row by assigning colours from queue
             if iterator == 1:
                 new.colour = colour_set.dequeue()
+
+            # For other rows, decide whether to create vertical connection 
+            # or leave cell blank by examining adjecent cells
             else: 
                 triple = self.get_triple(i, prev)
                 prev_colour = triple[1]
                 
+                # If another vertical connect definitely exists for this set, choice can be random
                 if triple[2] == prev_colour or triple[0] == prev_colour:
-                    probability = [0, 1, 1, 1]
+                    probability = [0, 0, 1, 1]
                     random.seed()
                     choice = random.choice(probability)
                     if choice:
                         new.colour = main.background_colour
-                    
                     else:
                         new.colour = prev_colour
 
+                # Else create vertical connection
                 else:
                     new.colour = prev_colour
+
+                # If vertical connection, remove grid border
                 if new.colour == prev_colour:
-                    rect = pygame.draw.line(background, new.colour, (new.rect.left, new.rect.top - 1), (new.rect.right - 1, new.rect.top - 1))
-                    line = Line(rect, new.colour)
-                    self.lines.append(line)              
-            self.cells.append(new)    
-        self.cells.append(border)
+                    border = new.get_border("top")
+                    self.lines.append(Line(border, new.colour))              
+            
+            self.cells.append(new)
+  
+        self.cells.append(self.border)
           
     def test_colour_adjacent(self, cell, dx):
         adjacent_colour = self.cells[cell.index+dx].colour
@@ -114,7 +124,9 @@ class Row():
         return [self.cells[i-1].colour , prev.cells[i].colour, prev.cells[i+1].colour]
 
     def random_merge(self, background):
+        ''' Iterate over row randomly merging adjacent sets'''
         changed = {}
+        
         for cell in self.cells[2:49]:
             adjacent_colour = self.get_colour_adjacent(cell, -1)
             if adjacent_colour == main.background_colour or cell.colour == main.background_colour:
@@ -127,8 +139,10 @@ class Row():
                 cell.colour = adjacent_colour
                 border = cell.get_border("left")
                 self.lines.append(Line(border, cell.colour))
+        
 
     def fill_empty(self, background):
+        ''' Assign blank cells there own new set '''
         for cell in self.cells:
             adjacent_colour = self.get_colour_adjacent(cell, 1)
             if cell.colour == main.background_colour:
@@ -144,11 +158,18 @@ class Row():
             background.fill(cell.colour, rect=cell.rect)
         for line in self.lines:
             background.fill(line.colour, rect=line)
-
             
-    def finish(self, background):
+    def clear(self, background):
         for cell in self.cells:
             if cell.colour != main.border_colour:
                 background.fill(main.final_colour, rect=cell.rect)
         for line in self.lines:
             background.fill(main.final_colour, rect=line.rect)
+
+    def finish(self, background):
+        final_set = self.cells[1].colour
+        for cell in self.cells:
+            if cell.colour != final_set:
+                border = cell.get_border("right")
+                self.lines.append(Line(border, cell.colour))
+        self.clear(background)
