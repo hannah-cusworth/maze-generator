@@ -22,31 +22,34 @@ class BinaryTree():
     def __init__(self, data):
         self.head = BinaryTreeNode(data)
 
-    def add_node(self, tree, node):
-        curr = tree
+    def add_node(self, node):
+        curr = self.head
         while True:
-            if curr.data > node.data:
+            if curr.data.top > node.data.top:
                 if curr.left:
                     curr = curr.left
                 else:
                     curr.left = node
-                    break
+                    return
             else:
                 if curr.right:
                     curr = curr.right
                 else:
                     curr.right = node
-                    break
+                    return
+
+    
     
     def fill_tree(self, background, colour):
-        fill_subtree(self, background, colour)
         def fill_subtree(tree, background, colour):
             if not tree.right and not tree.left:
                 background.fill(colour, rect=tree.data)
                 return
-            fill_subtree(tree.left)
-            fill_subtree(tree.right)
+            fill_subtree(tree.left, background, colour)
+            fill_subtree(tree.right, background, colour)
 
+        fill_subtree(self.head, background, colour)
+        
 
 class BinaryTreeNode():
     def __init__(self, data):
@@ -60,7 +63,7 @@ class ColourSet():
         for i in range(main.grid - 2):
             # keep between 1 and 255 to exclude border/grid/background
             random.seed()
-            self.all.append((random.randint(1,255), random.randint(1,255), random.randint(1,255), 50))
+            self.all.append((random.randint(1,255), random.randint(1,255), random.randint(1,255), 255))
         self.queue = self.all
 
     def enqueue(self, colour):

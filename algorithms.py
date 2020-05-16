@@ -92,7 +92,7 @@ def setup_kruskals(background):
         row = helpers.Row(y, None, background, first=True)
         for cell in row.cells:
             if cell.colour != main.border_colour:
-                set_dictionary[tuple(cell.colour)] = helpers.BinaryTree((cell.rect))
+                set_dictionary[tuple(cell.colour)] = helpers.BinaryTree(cell.rect)
                 if 0 < cell.index < (main.grid - 2):
                     grid_connections.append(helpers.Line(cell.get_grid("right"),main.grid_colour))
                 if y > 1 and cell.index >= 1:
@@ -118,15 +118,14 @@ def kruskals_algorithm(background, grid_connections, set_dictionary):
         colour_two = tuple(cell.get_colour_adjacent(coords, background))
         keys = set_dictionary.keys()
         #print(len(keys))
-        
 
         if colour_one in keys and colour_two in keys:
             print("yes")
-            merged_set = set__dictionary[colour_two]
-            merged_set.add_node(grid_connection)
+            merged_set = set_dictionary[colour_two]
+            merged_set.add_node(helpers.BinaryTreeNode(grid_connection.rect))
             del set_dictionary[colour_two]
             merged_set.fill_tree(background, colour_one)
-            set_dictionary[colour_one].add_node(merged_set.data)
+            set_dictionary[colour_one].add_node(merged_set.head)
         grid_connections.remove(grid_connection)
         helpers.wait()
 
