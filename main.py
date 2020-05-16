@@ -2,16 +2,16 @@ import pygame
 import window
 import helpers
 import algorithms
-
+ 
 
 pygame.init()
 
 # Dimensions
 info = pygame.display.Info()
 grid = 50
-screenx = int((info.current_w * 0.75)  - ((info.current_w*0.75) % grid))
+screenx = int((info.current_w*0.75)  - ((info.current_w*0.75) % grid))
 grid_size = int(screenx/grid)
-screeny = int(screenx * 0.6) - (int(screenx * 0.6) % grid_size)
+screeny = int(screenx*0.6) - (int(screenx*0.6) % grid_size)
 border_width = grid_size*2 # note that because the border grows either side of line, only half of this is visible
 
 # Colours
@@ -29,6 +29,7 @@ wait_time = 2
 # Algorithms
 recursive = False
 ellers = False
+kruskals = False
  
 def main():
     # Initialise screen
@@ -50,6 +51,9 @@ def main():
     elif algorithm == window.algorithm_list[1]:
         global ellers
         ellers = True
+    else:
+        global kruskals
+        kruskals = True
 
     # Create background and draw grid
     if recursive:
@@ -59,8 +63,10 @@ def main():
         
     elif ellers:
         iterator = 1
-        row = helpers.Row(iterator, None, background)
+        row = helpers.Row(iterator, None, background, first=True)
         algorithms.setup_ellers(background, row)
+    else:
+        algorithms.setup_kruskals(background)
  
     # Blit everything to the screen
     screen.blit(background, (0, 0))

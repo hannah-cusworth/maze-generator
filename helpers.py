@@ -3,6 +3,16 @@ import random
 import main
 
 
+ 
+def fill_grid(background):
+    grid_y = (main.screeny/main.grid) + 1
+    print("asjdfkal")
+    print(grid_y)
+    for y in range(1, int(grid_y)):
+        colour_set.refresh()
+        row = Row(y, None, background, first=True)
+        row.draw(background)
+
 def draw_grid(background):
     for x in range(0, main.screenx, main.grid_size):
         pygame.draw.line(background, main.grid_colour, (x, 0), (x, main.screeny), 1)
@@ -25,7 +35,7 @@ class ColourSet():
         for i in range(main.grid - 2):
             # keep between 1 and 255 to exclude border/grid/background
             random.seed()
-            self.all.append((random.randint(1,255), random.randint(1,255), random.randint(1,255), 255))
+            self.all.append((random.randint(1,255), random.randint(1,255), random.randint(1,255), 50))
         self.queue = self.all
 
     def enqueue(self, colour):
@@ -37,6 +47,9 @@ class ColourSet():
 
     def length(self):
         return len(self.queue)
+
+    def refresh(self):
+        self.__init__()
 
 
 class Cell():
@@ -75,11 +88,11 @@ class Line():
     def __init__(self, line, colour):
         self.rect = line
         self.colour = colour
-  
+
 colour_set = ColourSet()
 
 class Row():
-    def __init__(self, iterator, prev, background):
+    def __init__(self, iterator, prev, background, first=False):
         border = Cell(0,iterator)
         border.colour = main.border_colour
 
@@ -94,7 +107,7 @@ class Row():
             new = Cell(i, iterator)
 
             # Initiate first row by assigning colours from queue
-            if iterator == 1:
+            if first:
                 new.colour = colour_set.dequeue()
 
             # For other rows, decide whether to create vertical connection 
