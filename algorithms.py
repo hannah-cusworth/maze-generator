@@ -83,4 +83,50 @@ def ellers_algorithm(iterator, background, row):
 
 def setup_kruskals(background):
     helpers.draw_grid(background)
-    helpers.fill_grid(background)
+    set_dictionary = {}
+    grid_connections = []
+    grid_y = (main.screeny/main.grid) + 1
+    
+    for y in range(1, int(grid_y)):
+        helpers.colour_set.refresh()
+        row = helpers.Row(y, None, background, first=True)
+        for cell in row.cells:
+            if cell.colour != main.border_colour:
+                set_dictionary[tuple(cell.colour)] = helpers.BinaryTree((cell.rect))
+                if 0 < cell.index < (main.grid - 2):
+                    grid_connections.append(helpers.Line(cell.get_grid("right"),main.grid_colour))
+                if y > 1 and cell.index >= 1:
+                    grid_connections.append(helpers.Line(cell.get_grid("top"), main.grid_colour))
+        row.draw(background)
+    
+    return set_dictionary, grid_connections
+    
+
+def kruskals_algorithm(background, grid_connections, set_dictionary):
+    if grid_connections:
+        #print(len(grid_connections))
+        random.shuffle(grid_connections)
+        grid_connection = grid_connections[0]
+        cell = grid_connection.get_cell()
+
+        if grid_connection.rect.width > 1:
+            coords = (0,1)
+        else:
+            coords = (1,0)    
+
+        colour_one = tuple(background.get_at((cell.rect.center)))
+        colour_two = tuple(cell.get_colour_adjacent(coords, background))
+        keys = set_dictionary.keys()
+        #print(len(keys))
+        
+
+        if colour_one in keys and colour_two in keys:
+            print("yes")
+            merged_set = set__dictionary[colour_two]
+            merged_set.add_node(grid_connection)
+            del set_dictionary[colour_two]
+            merged_set.fill_tree(background, colour_one)
+            set_dictionary[colour_one].add_node(merged_set.data)
+        grid_connections.remove(grid_connection)
+        helpers.wait()
+

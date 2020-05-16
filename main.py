@@ -66,7 +66,7 @@ def main():
         row = helpers.Row(iterator, None, background, first=True)
         algorithms.setup_ellers(background, row)
     else:
-        algorithms.setup_kruskals(background)
+        set_dictionary, grid_connections = algorithms.setup_kruskals(background)
  
     # Blit everything to the screen
     screen.blit(background, (0, 0))
@@ -87,7 +87,7 @@ def main():
                 if colour == background_colour:
                     background.fill(background_colour, rect=highlighted_cell)
                     x = int((mouse[0] - 1) / grid_size)
-                    y = int((mouse[1] - 1)/ grid_size)
+                    y = int((mouse[1] - 1) / grid_size)
                     highlighted_cell = helpers.Cell(x,y)
                     background.fill(start_colour, rect=highlighted_cell)
                     fill_start = True
@@ -105,6 +105,9 @@ def main():
 
             iterator += 1
             row = algorithms.ellers_algorithm(iterator, background, row)
+
+        if kruskals:
+            algorithms.kruskals_algorithm(background, grid_connections, set_dictionary)
 
             
         screen.blit(background, (0, 0))

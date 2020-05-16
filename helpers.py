@@ -2,17 +2,6 @@ import pygame
 import random
 import main
 
-
- 
-def fill_grid(background):
-    grid_y = (main.screeny/main.grid) + 1
-    print("asjdfkal")
-    print(grid_y)
-    for y in range(1, int(grid_y)):
-        colour_set.refresh()
-        row = Row(y, None, background, first=True)
-        row.draw(background)
-
 def draw_grid(background):
     for x in range(0, main.screenx, main.grid_size):
         pygame.draw.line(background, main.grid_colour, (x, 0), (x, main.screeny), 1)
@@ -28,6 +17,42 @@ def wait():
     time = pygame.time.get_ticks()                      
     while pygame.time.get_ticks() < time + main.wait_time: 
         pass
+
+class BinaryTree():
+    def __init__(self, data):
+        self.head = BinaryTreeNode(data)
+
+    def add_node(self, tree, node):
+        curr = tree
+        while True:
+            if curr.data > node.data:
+                if curr.left:
+                    curr = curr.left
+                else:
+                    curr.left = node
+                    break
+            else:
+                if curr.right:
+                    curr = curr.right
+                else:
+                    curr.right = node
+                    break
+    
+    def fill_tree(self, background, colour):
+        fill_subtree(self, background, colour)
+        def fill_subtree(tree, background, colour):
+            if not tree.right and not tree.left:
+                background.fill(colour, rect=tree.data)
+                return
+            fill_subtree(tree.left)
+            fill_subtree(tree.right)
+
+
+class BinaryTreeNode():
+    def __init__(self, data):
+        self.data = data
+        self.right = None
+        self.left = None
 
 class ColourSet():
     def __init__(self):
@@ -88,6 +113,18 @@ class Line():
     def __init__(self, line, colour):
         self.rect = line
         self.colour = colour
+
+    def get_cell(self):
+        coords = self.rect.center
+        if self.rect.width > 1:
+            x = (coords[0] - 1) / main.grid_size
+            y = (coords[1] - 5) / main.grid_size
+        else:
+            x = (coords[0] - 5) / main.grid_size
+            y = (coords[1] - 1) / main.grid_size
+        return Cell(int(x), int(y))
+
+
 
 colour_set = ColourSet()
 
