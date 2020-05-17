@@ -30,6 +30,8 @@ class BinaryTree():
                     curr = curr.left
                 else:
                     curr.left = node
+                    
+                    
                     return
             else:
                 if curr.right:
@@ -42,11 +44,13 @@ class BinaryTree():
     
     def fill_tree(self, background, colour):
         def fill_subtree(tree, background, colour):
+            background.fill(colour, rect=tree.data)
             if not tree.right and not tree.left:
-                background.fill(colour, rect=tree.data)
                 return
-            fill_subtree(tree.left, background, colour)
-            fill_subtree(tree.right, background, colour)
+            if tree.left:
+                fill_subtree(tree.left, background, colour)
+            if tree.right:
+                fill_subtree(tree.right, background, colour)
 
         fill_subtree(self.head, background, colour)
         
@@ -106,6 +110,9 @@ class Cell():
     def get_colour_adjacent(self, coords, background): # coords: (dx,dy)
         test = Cell((self.coord[0] + coords[0]), (self.coord[1] + coords[1]))
         return background.get_at((test.rect.center))
+
+    def get_adjacent(self, coords, background):
+        return Cell((self.coord[0] + coords[0]), (self.coord[1] + coords[1]))
 
     def get_grid_colour(self, edge, background):
         grid = self.get_grid(edge)

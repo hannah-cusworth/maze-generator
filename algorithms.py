@@ -108,24 +108,40 @@ def kruskals_algorithm(background, grid_connections, set_dictionary):
         random.shuffle(grid_connections)
         grid_connection = grid_connections[0]
         cell = grid_connection.get_cell()
+        
 
         if grid_connection.rect.width > 1:
             coords = (0,1)
         else:
-            coords = (1,0)    
+            coords = (1,0)
 
-        colour_one = tuple(background.get_at((cell.rect.center)))
-        colour_two = tuple(cell.get_colour_adjacent(coords, background))
+        adj = cell.get_adjacent(coords, background)
+        
+        colour_one = tuple(cell.get_colour_adjacent(coords, background))
+        colour_two = tuple(background.get_at((cell.rect.center)))
+        
         keys = set_dictionary.keys()
         #print(len(keys))
+        
 
-        if colour_one in keys and colour_two in keys:
-            print("yes")
+
+        if colour_one == colour_two:
+            pass
+        elif colour_one in keys and colour_two in keys:
+
+            expanded_set = set_dictionary[colour_one]
             merged_set = set_dictionary[colour_two]
+    
             merged_set.add_node(helpers.BinaryTreeNode(grid_connection.rect))
             del set_dictionary[colour_two]
+
             merged_set.fill_tree(background, colour_one)
-            set_dictionary[colour_one].add_node(merged_set.head)
+            expanded_set.add_node(merged_set.head)
+            
+            
+
         grid_connections.remove(grid_connection)
         helpers.wait()
+
+    
 
