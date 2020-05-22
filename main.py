@@ -32,6 +32,11 @@ ellers = False
 kruskals = False
  
 def main():
+    # Declare global variables to control algorithm choice
+    global recursive
+    global ellers
+    global kruskals
+
     # Initialise screen
     pygame.display.set_caption('Visualiser')
     screen = pygame.display.set_mode((screenx, screeny))
@@ -41,32 +46,6 @@ def main():
     # Set events
     allowed = [pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN]
     pygame.event.set_allowed(allowed)
-
-    # Launch window and define selected algorithm
-    popup = window.AlgoSelectWindow()
-    algorithm = popup.choice
-    if algorithm == window.algorithm_list[0]:
-        global recursive
-        recursive = True
-    elif algorithm == window.algorithm_list[1]:
-        global ellers
-        ellers = True
-    else:
-        global kruskals
-        kruskals = True
-
-    # Create background and draw grid
-    if recursive:
-        algorithms.setup_recursive(background)
-        current_cell = None
-        highlighted_cell = helpers.Cell(48,1)
-        
-    elif ellers:
-        iterator = 1
-        row = helpers.Row(iterator, None, background, first=True)
-        algorithms.setup_ellers(background, row)
-    else:
-        set_dictionary, grid_connections = algorithms.setup_kruskals(background)
  
     # Blit everything to the screen
     screen.blit(background, (0, 0))
@@ -74,14 +53,34 @@ def main():
 
     # Game loop
     while True:
+        if not recursive and not ellers and not kruskals:
+            # Launch window and define selected algorithm
+            helpers.colour_set.refresh()
+            popup = window.AlgoSelectWindow()
+            algorithm = popup.choice
+            if algorithm == window.algorithm_list[0]:
+                recursive = True
+                algorithms.setup_recursive(background)
+                current_cell = None
+                highlighted_cell = helpers.Cell(48,1)
+            elif algorithm == window.algorithm_list[1]:
+                ellers = True
+                iterator = 1
+                row = helpers.Row(iterator, None, background, first=True)
+                algorithms.setup_ellers(background, row)
+            elif algorithm == window.algorithm_list[2]:
+                kruskals = True
+                set_dictionary, grid_connections = algorithms.setup_kruskals(background)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-            if recursive:
+            if recursive and not current_cell:
                 mouse = pygame.mouse.get_pos()
                 colour = background.get_at(mouse)
                 if event.type == pygame.MOUSEBUTTONDOWN and colour != border_colour:
                     current_cell = highlighted_cell 
+
         if recursive:
             if not current_cell:
                 if colour == background_colour:
@@ -93,21 +92,28 @@ def main():
                     fill_start = True
                     start_cell = highlighted_cell
             else:
-
                 current_cell = algorithms.recursive_backtracker(current_cell, background)
-                
                 if fill_start == True:
                     background.fill(start_colour, rect=start_cell)
                     fill_start = False
+                if current_cell.coord == start_cell.coord:
+                    recursive = False
+
 
                 
-        if ellers:
+        elif ellers:
+            if iterator < ((screeny/grid_size) - 2):
+                iterator += 1
+                row = algorithms.ellers_algorithm(iterator, background, row)
+            else:
+                row.finish(background)
+                ellers = False
 
-            iterator += 1
-            row = algorithms.ellers_algorithm(iterator, background, row)
-
-        if kruskals:
-            algorithms.kruskals_algorithm(background, grid_connections, set_dictionary)
+        elif kruskals:
+            if grid_connections:
+                algorithms.kruskals_algorithm(background, grid_connections, set_dictionary)
+            else:
+                kruskals = False
 
             
         screen.blit(background, (0, 0))

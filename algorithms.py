@@ -54,31 +54,28 @@ def setup_ellers(background, row):
     row.draw(background)
     helpers.wait()
 
+   
     row.random_merge(background)
     row.draw(background) 
     helpers.wait()
 
 def ellers_algorithm(iterator, background, row):
-    if iterator < (main.screeny/main.grid):
+    row.draw(background)
+    prev = row              
+    row = helpers.Row(iterator, prev, background)
+    row.draw(background)
+    helpers.wait()
+    
+    row.random_merge(background)
+    row.draw(background)
+    helpers.wait()
 
-                row.draw(background)
-                prev = row              
-                row = helpers.Row(iterator, prev, background)
-                row.draw(background)
-                helpers.wait()
-                
-                row.random_merge(background)
-                row.draw(background)
-                helpers.wait()
+    row.fill_empty(background)
+    row.draw(background)
+    helpers.wait()
 
-                row.fill_empty(background)
-                row.draw(background)
-                helpers.wait()
-
-                prev.clear(background)
-                helpers.wait()
-    else:
-        row.finish(background)
+    prev.clear(background)
+    helpers.wait()
     return row
 
 def setup_kruskals(background):
@@ -87,14 +84,17 @@ def setup_kruskals(background):
     grid_connections = []
     grid_y = (main.screeny/main.grid) + 1
     
+    # Create rows with random colour_sets
     for y in range(1, int(grid_y)):
         helpers.colour_set.refresh()
         row = helpers.Row(y, None, background, first=True)
+        # Iterate over row, adding each colour_set to dictionary
         for cell in row.cells:
             if cell.colour != main.border_colour:
                 set_dictionary[tuple(cell.colour)] = helpers.BinaryTree(cell.rect)
+                # And add grid connections to list
                 if 0 < cell.index < (main.grid - 2):
-                    grid_connections.append(helpers.Line(cell.get_grid("right"),main.grid_colour))
+                    grid_connections.append(helpers.Line(cell.get_grid("right"), main.grid_colour))
                 if y > 1 and cell.index >= 1:
                     grid_connections.append(helpers.Line(cell.get_grid("top"), main.grid_colour))
         row.draw(background)
@@ -103,45 +103,38 @@ def setup_kruskals(background):
     
 
 def kruskals_algorithm(background, grid_connections, set_dictionary):
-    if grid_connections:
-        #print(len(grid_connections))
-        random.shuffle(grid_connections)
-        grid_connection = grid_connections[0]
-        cell = grid_connection.get_cell()
-        
-
-        if grid_connection.rect.width > 1:
-            coords = (0,1)
-        else:
-            coords = (1,0)
-
-        adj = cell.get_adjacent(coords, background)
-        
-        colour_one = tuple(cell.get_colour_adjacent(coords, background))
-        colour_two = tuple(background.get_at((cell.rect.center)))
-        
-        keys = set_dictionary.keys()
-        #print(len(keys))
-        
-
-
-        if colour_one == colour_two:
-            pass
-        elif colour_one in keys and colour_two in keys:
-
-            expanded_set = set_dictionary[colour_one]
-            merged_set = set_dictionary[colour_two]
+    random.shuffle(grid_connections)
+    grid_connection = grid_connections[0]
+    cell = grid_connection.get_cell()
     
-            merged_set.add_node(helpers.BinaryTreeNode(grid_connection.rect))
-            del set_dictionary[colour_two]
-
-            merged_set.fill_tree(background, colour_one)
-            expanded_set.add_node(merged_set.head)
-            
-            
-
-        grid_connections.remove(grid_connection)
-        helpers.wait()
-
+    # Work out whether the grid connection is horizontal or vertical and get the correct cell
+    if grid_connection.rect.width > 1:
+        coords = (0,1)
+    else:
+        coords = (1,0)
+    adj = cell.get_adjacent(coords, background)
     
+    # Get the colours of the cells divided by the given grid connection
+    colour_one = tuple(cell.get_colour_adjacent(coords, background))
+    colour_two = tuple(background.get_at((cell.rect.center)))
+    keys = set_dictionary.keys()
+
+    # If the colours are different, merge one set with the other 
+    if colour_one == colour_two:
+        pass
+    elif colour_one in keys and colour_two in keys:
+        expanded_set = set_dictionary[colour_one]
+        merged_set = set_dictionary[colour_two]
+
+        merged_set.add_node(helpers.BinaryTreeNode(grid_connection.rect))
+        del set_dictionary[colour_two]
+
+        merged_set.fill_tree(background, colour_one)
+        expanded_set.add_node(merged_set.head)      
+
+    grid_connections.remove(grid_connection)
+    helpers.wait()
+
+
+
 
