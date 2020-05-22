@@ -2,6 +2,13 @@ import helpers
 import pygame
 import main
 import random
+
+recursive_bias = None
+
+def set_recursive_bias(bias):
+    global recursive_bias
+    recursive_bias = str(bias)
+
  
 def setup_recursive(background):
     background.fill(main.background_colour)
@@ -11,16 +18,11 @@ def setup_recursive(background):
 
 def recursive_backtracker(current, background):
     # Define directions: [(dx,dy), traversed border]
-    directions = [
-        [(0,1), "bottom"], 
-        [(0,-1), "top"], 
-        [(1,0), "right"], 
-        [(-1,0), "left"]
-    ]            
-    random.shuffle(directions)
-
+    directions = helpers.DirectionSet(recursive_bias)
+    directions.shuffle()
+    
     # Iterate over randomly ordered directions, checking whether moving into cell already visited
-    for direction in directions:
+    for direction in directions.list:
         colour = current.get_colour_adjacent(direction[0], background)
          # If in this direction unvisited, move current there, fill cell and erase border
         if colour == main.background_colour:
@@ -35,7 +37,7 @@ def recursive_backtracker(current, background):
 
     # If there are no available cells, retrace path and fill new colour.
     # This is the equivalent of recursive calls returning
-    for direction in directions:
+    for direction in directions.list:
         colour = current.get_grid_colour(direction[1], background)
 
         if colour == main.cell_colour:

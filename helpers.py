@@ -20,8 +20,7 @@ def set_wait_time(speed):
     wait_time = speed
 
 def wait():
-    time = pygame.time.get_ticks() 
-    print(wait_time)                     
+    time = pygame.time.get_ticks()                     
     while pygame.time.get_ticks() < time + wait_time: 
         pass
 
@@ -68,6 +67,30 @@ class BinaryTreeNode():
         self.data = data
         self.right = None
         self.left = None
+
+class DirectionSet():
+    def __init__(self, bias):
+        self.dict = {
+                "S": [(0,1), "bottom"], 
+                "N": [(0,-1), "top"], 
+                "E": [(1,0), "right"], 
+                "W": [(-1,0), "left"]   
+            }
+        self.list = list(self.dict.values())
+        for x in range(2):
+            if bias == "X":
+                self.list.append(self.dict["W"])
+                self.list.append(self.dict["E"])
+            elif bias == "Y":
+                self.list.append(self.dict["N"])
+                self.list.append(self.dict["S"])
+            elif bias:
+                self.list.append(self.dict[bias])
+        print(self.list)
+
+    def shuffle(self):
+        random.shuffle(self.list)
+
 
 class ColourSet():
     def __init__(self):

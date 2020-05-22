@@ -105,55 +105,66 @@ class AlgoSelectWindow():
             label="Speed",
             variable=self.speed_var
             )
-        bias_var = tk.StringVar(self.window)
-        self.set_bias_none = tk.Radiobutton(
+        self.recursive_bias_var = tk.StringVar(self.window)
+        self.set_bias_none_recursive = tk.Radiobutton(
             master=custom_frame,
             font=listfont,
-            variable=bias_var,
+            variable=self.recursive_bias_var,
             text="No Bias",
+            value=''
             )
         self.set_bias_left = tk.Radiobutton(
             master=custom_frame,
             font=listfont,
-            variable=bias_var,
+            variable=self.recursive_bias_var,
             text="Left Bias",
             value="W",
             )
         self.set_bias_right = tk.Radiobutton(
             master=custom_frame,
             font=listfont,
-            variable=bias_var,
+            variable=self.recursive_bias_var,
             text="Right Bias",
             value="E",
             )
         self.set_bias_up = tk.Radiobutton(
             master=custom_frame,
             font=listfont,
-            variable=bias_var,
+            variable=self.recursive_bias_var,
             text="Upward Bias",
             value="N"
             )
         self.set_bias_down = tk.Radiobutton(
             master=custom_frame,
             font=listfont,
-            variable=bias_var,
+            variable=self.recursive_bias_var,
             text="Downward Bias",
             value="S"
             )
         self.set_bias_y = tk.Radiobutton(
             master=custom_frame,
             font=listfont,
-            variable=bias_var,
+            variable=self.recursive_bias_var,
             text="Vertical Bias",
-            value="X"
+            value="Y"
             )
         self.set_bias_x = tk.Radiobutton(
             master=custom_frame,
             font=listfont,
-            variable=bias_var,
+            variable=self.recursive_bias_var,
             text="Horizontal Bias",
-            value="Y"
+            value="X"
             )
+
+        self.ellers_bias_var = tk.StringVar(self.window)
+        self.set_bias_none_ellers = tk.Radiobutton(
+            master=custom_frame,
+            font=listfont,
+            variable=self.ellers_bias_var,
+            text="No Bias",
+            value=''
+            )
+        
         self.set_speed.pack()
 
         # Button
@@ -184,27 +195,30 @@ class AlgoSelectWindow():
             
     def change_algorithm(self, foo, bar, baz): # Dummy args
         choice = self.select_variable.get()
+        self.set_bias_none_recursive.pack_forget()
         self.set_bias_down.pack_forget()
         self.set_bias_up.pack_forget()
         self.set_bias_left.pack_forget()
         self.set_bias_right.pack_forget()
-        self.set_bias_none.pack_forget()
+        self.set_bias_none_ellers.pack_forget()
         self.set_bias_x.pack_forget()
         self.set_bias_y.pack_forget()
         
         if choice == algorithm_list[0]:
             self.info_text_variable.set(algo_info[0])
-            self.set_bias_none.pack()
+            self.set_bias_none_recursive.pack()
             self.set_bias_down.pack()
             self.set_bias_up.pack()
             self.set_bias_left.pack()
             self.set_bias_right.pack()
+            self.set_bias_x.pack()
+            self.set_bias_y.pack()
             
         if choice == algorithm_list[1]:
             self.info_text_variable.set(algo_info[1])
-            self.set_bias_none.pack()
+            self.set_bias_none_ellers.pack()
             self.set_bias_x.pack()
-            self.set_bias_y.pack()
+            
 
         if choice == algorithm_list[2]:
             self.info_text_variable.set(algo_info[2])

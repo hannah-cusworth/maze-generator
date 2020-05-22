@@ -62,6 +62,7 @@ def main():
             algorithm = popup.choice
             if algorithm == window.algorithm_list[0]:
                 recursive = True
+                algorithms.set_recursive_bias(popup.recursive_bias_var.get())
                 algorithms.setup_recursive(background)
                 current_cell = None
                 highlighted_cell = helpers.Cell(48,1)
