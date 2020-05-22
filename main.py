@@ -23,8 +23,6 @@ start_colour = (0,0,255, 255)
 final_colour = (255, 255, 255, 255)
 current_colour = (0,255,0,255)
 
-# Timings
-wait_time = 2
 
 # Algorithms
 recursive = False
@@ -32,7 +30,7 @@ ellers = False
 kruskals = False
  
 def main():
-    # Declare global variables to control algorithm choice
+    # Declare global variables to control algorithm choice and speed
     global recursive
     global ellers
     global kruskals
@@ -54,9 +52,13 @@ def main():
     # Game loop
     while True:
         if not recursive and not ellers and not kruskals:
-            # Launch window and define selected algorithm
+            # Launch window
             helpers.colour_set.refresh()
             popup = window.AlgoSelectWindow()
+            # Set speed
+            speed = 221 - (popup.speed_var.get() * 20)
+            helpers.set_wait_time(speed)
+            # Get selected algorithm
             algorithm = popup.choice
             if algorithm == window.algorithm_list[0]:
                 recursive = True

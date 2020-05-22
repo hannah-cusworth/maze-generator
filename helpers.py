@@ -2,6 +2,8 @@ import pygame
 import random
 import main
 
+wait_time = 1
+
 def draw_grid(background):
     for x in range(0, main.screenx, main.grid_size):
         pygame.draw.line(background, main.grid_colour, (x, 0), (x, main.screeny), 1)
@@ -13,10 +15,16 @@ def draw_border(background):
     border = pygame.Rect(0, 0, main.screenx - 1, main.screeny)
     pygame.draw.rect(background, main.border_colour, border, main.border_width)
 
+def set_wait_time(speed):
+    global wait_time
+    wait_time = speed
+
 def wait():
-    time = pygame.time.get_ticks()                      
-    while pygame.time.get_ticks() < time + main.wait_time: 
+    time = pygame.time.get_ticks() 
+    print(wait_time)                     
+    while pygame.time.get_ticks() < time + wait_time: 
         pass
+
 
 class BinaryTree():
     def __init__(self, data):
