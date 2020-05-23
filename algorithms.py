@@ -51,7 +51,7 @@ def recursive_backtracker(current, background):
             return current
 
 def setup_ellers(background, row):
-    background.fill(main.grid)  
+    background.fill(main.grid_size)  
     helpers.draw_border(background)
     row.draw(background)
     helpers.wait()
@@ -76,7 +76,9 @@ def ellers_algorithm(iterator, background, row):
     row.draw(background)
     helpers.wait()
 
+   
     prev.clear(background)
+
     helpers.wait()
     return row
 
@@ -84,7 +86,7 @@ def setup_kruskals(background):
     helpers.draw_grid(background)
     set_dictionary = {}
     grid_connections = []
-    grid_y = (main.screeny/main.grid) + 1
+    grid_y = (main.screeny/main.grid_pixels) - 1
     
     # Create rows with random colour_sets
     for y in range(1, int(grid_y)):
@@ -95,7 +97,7 @@ def setup_kruskals(background):
             if cell.colour != main.border_colour:
                 set_dictionary[tuple(cell.colour)] = helpers.BinaryTree(cell.rect)
                 # And add grid connections to list
-                if 0 < cell.index < (main.grid - 2):
+                if 0 < cell.index < (main.grid_size - 2):
                     grid_connections.append(helpers.Line(cell.get_grid("right"), main.grid_colour))
                 if y > 1 and cell.index >= 1:
                     grid_connections.append(helpers.Line(cell.get_grid("top"), main.grid_colour))
@@ -128,7 +130,7 @@ def kruskals_algorithm(background, grid_connections, set_dictionary):
         expanded_set = set_dictionary[colour_one]
         merged_set = set_dictionary[colour_two]
 
-        merged_set.add_node(helpers.BinaryTreeNode(grid_connection.rect))
+        merged_set.add_node(grid_connection.rect)
         del set_dictionary[colour_two]
 
         merged_set.fill_tree(background, colour_one)

@@ -4,11 +4,12 @@ import main
 
 wait_time = 1
 
+
 def draw_grid(background):
-    for x in range(0, main.screenx, main.grid_size):
+    for x in range(0, main.screenx, main.grid_pixels):
         pygame.draw.line(background, main.grid_colour, (x, 0), (x, main.screeny), 1)
         
-    for y in range(0, main.screeny, main.grid_size):
+    for y in range(0, main.screeny, main.grid_pixels):
         pygame.draw.line(background, main.grid_colour, (0, y), (main.screenx, y), 1)
    
 def draw_border(background):
@@ -25,12 +26,19 @@ def wait():
         pass
 
 
+
+
+
+
+
 class BinaryTree():
     def __init__(self, data):
         self.head = BinaryTreeNode(data)
 
     def add_node(self, node):
         curr = self.head
+        if not isinstance(node, BinaryTreeNode):
+            node = BinaryTreeNode(node)
         while True:
             if curr.data.top > node.data.top:
                 if curr.left:
@@ -86,7 +94,7 @@ class DirectionSet():
                 self.list.append(self.dict["S"])
             elif bias:
                 self.list.append(self.dict[bias])
-        print(self.list)
+        
 
     def shuffle(self):
         random.shuffle(self.list)
@@ -95,7 +103,7 @@ class DirectionSet():
 class ColourSet():
     def __init__(self):
         self.all = []
-        for i in range(main.grid - 2):
+        for i in range(main.grid_size - 2):
             # keep between 1 and 255 to exclude border/grid/background
             random.seed()
             self.all.append((random.randint(1,255), random.randint(1,255), random.randint(1,255), 255))
@@ -104,8 +112,10 @@ class ColourSet():
     def enqueue(self, colour):
         if colour not in self.queue:
             self.queue.append(colour)
+            
 
     def dequeue(self):
+        
         return self.queue.pop(0)
 
     def length(self):
@@ -117,9 +127,9 @@ class ColourSet():
 
 class Cell():
     def __init__(self, x, y):
-        #self.start = pygame.Rect((main.grid_size * x) + 1, (main.grid_size * y) + 1, main.grid_size-1, main.grid_size-1)
+        #self.start = pygame.Rect((main.grid_pixels * x) + 1, (main.grid_pixels * y) + 1, main.grid_pixels-1, main.grid_pixels-1)
         self.coord = (x,y)
-        self.rect = pygame.Rect((main.grid_size * x) + 1, (main.grid_size * y) + 1, main.grid_size-1, main.grid_size-1)
+        self.rect = pygame.Rect((main.grid_pixels * x) + 1, (main.grid_pixels * y) + 1, main.grid_pixels-1, main.grid_pixels-1)
         self.colour = None
         self.index = x
 
@@ -158,11 +168,11 @@ class Line():
     def get_cell(self):
         coords = self.rect.center
         if self.rect.width > 1:
-            x = (coords[0] - 1) / main.grid_size
-            y = (coords[1] - 5) / main.grid_size
+            x = (coords[0] - 1) / main.grid_pixels
+            y = (coords[1] - 5) / main.grid_pixels
         else:
-            x = (coords[0] - 5) / main.grid_size
-            y = (coords[1] - 1) / main.grid_size
+            x = (coords[0] - 5) / main.grid_pixels
+            y = (coords[1] - 1) / main.grid_pixels
         return Cell(int(x), int(y))
 
 
@@ -174,20 +184,20 @@ class Row():
         border = Cell(0,iterator)
         border.colour = main.border_colour
 
-        self.y = (main.grid_size * iterator) + 1 
+        self.y = (main.grid_pixels * iterator) + 1 
         self.border = border
         self.cells = [self.border]
         self.lines = []
         self.merged = {}
         
 
-        for i in range(1, main.grid-1):
+        for i in range(1, main.grid_size - 1):
             new = Cell(i, iterator)
 
             # Initiate first row by assigning colours from queue
             if first:
                 new.colour = colour_set.dequeue()
-
+                
             # For other rows, decide whether to create vertical connection 
             # or leave cell blank by examining adjecent cells
             else: 
@@ -203,7 +213,7 @@ class Row():
                         new.colour = main.background_colour
                     else:
                         new.colour = prev_colour
-
+                        
                 # Else create vertical connection
                 else:
                     new.colour = prev_colour
@@ -211,7 +221,8 @@ class Row():
                 # If vertical connection, remove grid border
                 if new.colour == prev_colour:
                     grid = new.get_grid("top")
-                    self.lines.append(Line(grid, new.colour))              
+                    line = Line(grid, new.colour)
+                    self.lines.append(line)       
             
             self.cells.append(new)
   
@@ -231,31 +242,38 @@ class Row():
         ''' Iterate over row randomly merging adjacent sets'''
         changed = {}
         
-        for cell in self.cells[2:49]:
+        for cell in self.cells:
+            ignore = [main.background_colour, main.border_colour]
             adjacent_colour = self.get_colour_adjacent(cell, -1)
-            if adjacent_colour == main.background_colour or cell.colour == main.background_colour:
+            if adjacent_colour in ignore or cell.colour in ignore:
                 continue
             if cell.colour in changed.keys():
                 cell.colour = changed[cell.colour]
             elif random.randint(0,1) and not self.test_colour_adjacent(cell, -1):
                 changed[cell.colour] = adjacent_colour
+                border = cell.get_grid("left")
+                self.lines.append(Line(border, adjacent_colour))
+                
                 colour_set.enqueue(cell.colour)
                 cell.colour = adjacent_colour
-                border = cell.get_grid("left")
-                self.lines.append(Line(border, cell.colour))
-        
+                    
+
+
+            
 
     def fill_empty(self, background):
-        ''' Assign blank cells there own new set '''
+        ''' Assign blank cells their own new set '''
         for cell in self.cells:
             adjacent_colour = self.get_colour_adjacent(cell, 1)
             if cell.colour == main.background_colour:
                 if random.randint(0,1) or adjacent_colour == main.border_colour:
                     cell.colour = colour_set.dequeue()
+                    
                 else:
                     cell.colour = adjacent_colour
                     grid = cell.get_grid("right")
                     self.lines.append(Line(grid, cell.colour))
+                    
 
     def draw(self, background):
         for cell in self.cells:

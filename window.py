@@ -5,7 +5,7 @@ import tkinter.font as tkFont
 algorithm_list = [
             "Recursive Backtracker",
             "Eller's Algorithm",
-            "Algorithm 3",
+            "Kruskal's Algorithm",
             ]
 algo_info = [
     "Blah",
@@ -22,10 +22,10 @@ class AlgoSelectWindow():
     def __init__(self):
         self.window = tk.Tk()
         self.choice = ""
-
+        self.exit_status = False
         # Configure window
         self.window.title("Maze Generator")
-        self.window.columnconfigure(0, minsize=500, weight=1)
+        self.window.columnconfigure([0,1], minsize=500, weight=1)
         self.window.rowconfigure([0,1,2,3,4], minsize=100, weight=1)
 
         # Set font
@@ -34,7 +34,7 @@ class AlgoSelectWindow():
 
         # Intro frame
         intro_frame = tk.Frame()
-        intro_frame.grid(row=0, column=0)
+        intro_frame.grid(row=0, column=0, columnspan=2)
 
         greeting = tk.Label(
             master=intro_frame,
@@ -48,7 +48,7 @@ class AlgoSelectWindow():
 
         # Selection frame
         select_frame = tk.Frame()
-        select_frame.grid(row=1, column=0)
+        select_frame.grid(row=1, column=0, columnspan=2)
 
         select_label = tk.Label(
             master=select_frame,
@@ -80,7 +80,7 @@ class AlgoSelectWindow():
 
         # Information frame
         info_frame = tk.Frame()
-        info_frame.grid(row=2, column=0)
+        info_frame.grid(row=2, column=0, columnspan=2)
         self.info_text_variable = tk.StringVar(self.window)
         self.info_text = tk.Label(
             master=info_frame,
@@ -92,11 +92,13 @@ class AlgoSelectWindow():
         self.info_text.pack()
 
         # Customisation frame
-        custom_frame = tk.Frame()
-        custom_frame.grid(row=3, column=0)
+        custom_frame_1 = tk.Frame()
+        custom_frame_2 = tk.Frame()
+        custom_frame_1.grid(row=3, column=0)
+        custom_frame_2.grid(row=3, column=1)
         self.speed_var = tk.IntVar(self.window)
         self.set_speed = tk.Scale(
-            master=custom_frame,
+            master=custom_frame_1,
             font=listfont,
             from_=1,
             to=10,
@@ -105,66 +107,69 @@ class AlgoSelectWindow():
             label="Speed",
             variable=self.speed_var
             )
+        self.grid_var = tk.IntVar(self.window)
+        self.set_grid = tk.Scale(
+            master=custom_frame_2,
+            font=listfont,
+            from_=1,
+            to=10,
+            orient=tk.HORIZONTAL,
+            length=200,
+            label="Grid Size",
+            variable=self.grid_var
+            )
         self.recursive_bias_var = tk.StringVar(self.window)
         self.set_bias_none_recursive = tk.Radiobutton(
-            master=custom_frame,
+            master=custom_frame_1,
             font=listfont,
             variable=self.recursive_bias_var,
             text="No Bias",
             value=''
             )
         self.set_bias_left = tk.Radiobutton(
-            master=custom_frame,
+            master=custom_frame_2,
             font=listfont,
             variable=self.recursive_bias_var,
             text="Left Bias",
             value="W",
             )
         self.set_bias_right = tk.Radiobutton(
-            master=custom_frame,
+            master=custom_frame_2,
             font=listfont,
             variable=self.recursive_bias_var,
             text="Right Bias",
             value="E",
             )
         self.set_bias_up = tk.Radiobutton(
-            master=custom_frame,
+            master=custom_frame_2,
             font=listfont,
             variable=self.recursive_bias_var,
             text="Upward Bias",
             value="N"
             )
         self.set_bias_down = tk.Radiobutton(
-            master=custom_frame,
+            master=custom_frame_2,
             font=listfont,
             variable=self.recursive_bias_var,
             text="Downward Bias",
             value="S"
             )
         self.set_bias_y = tk.Radiobutton(
-            master=custom_frame,
+            master=custom_frame_1,
             font=listfont,
             variable=self.recursive_bias_var,
             text="Vertical Bias",
             value="Y"
             )
         self.set_bias_x = tk.Radiobutton(
-            master=custom_frame,
+            master=custom_frame_1,
             font=listfont,
             variable=self.recursive_bias_var,
             text="Horizontal Bias",
             value="X"
             )
 
-        self.ellers_bias_var = tk.StringVar(self.window)
-        self.set_bias_none_ellers = tk.Radiobutton(
-            master=custom_frame,
-            font=listfont,
-            variable=self.ellers_bias_var,
-            text="No Bias",
-            value=''
-            )
-        
+        self.set_grid.pack()
         self.set_speed.pack()
 
         # Button
@@ -172,18 +177,37 @@ class AlgoSelectWindow():
             text="Run algorithm",
             width=15,
             height=1,
-            bg="red",
+            bg="green",
             fg="black",
             command=self.run_algorithm,
             font=myfont,
             pady=10,
         )
+
         run_button.grid(
             row=4, 
             column=0,
             padx=x,
             pady=button_padding,
             )
+
+        quit_button = tk.Button(
+            text="Exit Program",
+            width=15,
+            height=1,
+            bg="red",
+            fg="black",
+            command=self.exit,
+            font=myfont,
+            pady=10,)
+
+        quit_button.grid(
+            row=4, 
+            column=1,
+            padx=x,
+            pady=button_padding,
+            )
+        
         
         # Intitiate 
         self.window.mainloop()
@@ -200,7 +224,6 @@ class AlgoSelectWindow():
         self.set_bias_up.pack_forget()
         self.set_bias_left.pack_forget()
         self.set_bias_right.pack_forget()
-        self.set_bias_none_ellers.pack_forget()
         self.set_bias_x.pack_forget()
         self.set_bias_y.pack_forget()
         
@@ -214,14 +237,7 @@ class AlgoSelectWindow():
             self.set_bias_x.pack()
             self.set_bias_y.pack()
             
-        if choice == algorithm_list[1]:
-            self.info_text_variable.set(algo_info[1])
-            self.set_bias_none_ellers.pack()
-            self.set_bias_x.pack()
-            
-
-        if choice == algorithm_list[2]:
-            self.info_text_variable.set(algo_info[2])
+       
             
    
 
@@ -229,6 +245,10 @@ class AlgoSelectWindow():
 
     def quit(self):
         self.window.destroy()
+
+    def exit(self):
+        self.exit_status = True
+        self.quit()
 
 
 

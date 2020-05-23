@@ -8,11 +8,11 @@ pygame.init()
 
 # Dimensions
 info = pygame.display.Info()
-grid = 50
-screenx = int((info.current_w*0.75)  - ((info.current_w*0.75) % grid))
-grid_size = int(screenx/grid)
-screeny = int(screenx*0.6) - (int(screenx*0.6) % grid_size)
-border_width = grid_size*2 # note that because the border grows either side of line, only half of this is visible
+grid_size = 50
+screenx = int((info.current_w*0.75)  - ((info.current_w*0.75) % grid_size))
+grid_pixels = int(screenx/grid_size)
+screeny = int(screenx*0.6) - (int(screenx*0.6) % grid_pixels)
+border_width = grid_pixels*2 # note that because the border grows either side of line, only half of this is visible
 
 # Colours
 background_colour = (160,160,160, 255)
@@ -28,9 +28,13 @@ current_colour = (0,255,0,255)
 recursive = False
 ellers = False
 kruskals = False
- 
+
+def set_grid_size(size):
+    global grid_size
+    grid_size = size
+
 def main():
-    # Declare global variables to control algorithm choice and speed
+    # Declare variables to control algorithm choice and speed
     global recursive
     global ellers
     global kruskals
@@ -55,6 +59,12 @@ def main():
             # Launch window
             helpers.colour_set.refresh()
             popup = window.AlgoSelectWindow()
+            # Check whether to exit program
+            if popup.exit_status:
+                return
+            # Set grid size
+            size = popup.grid_var.get() * 10
+            set_grid_size(size)
             # Set speed
             speed = 221 - (popup.speed_var.get() * 20)
             helpers.set_wait_time(speed)
@@ -88,8 +98,8 @@ def main():
             if not current_cell:
                 if colour == background_colour:
                     background.fill(background_colour, rect=highlighted_cell)
-                    x = int((mouse[0] - 1) / grid_size)
-                    y = int((mouse[1] - 1) / grid_size)
+                    x = int((mouse[0] - 1) / grid_pixels)
+                    y = int((mouse[1] - 1) / grid_pixels)
                     highlighted_cell = helpers.Cell(x,y)
                     background.fill(start_colour, rect=highlighted_cell)
                     fill_start = True
@@ -105,7 +115,7 @@ def main():
 
                 
         elif ellers:
-            if iterator < ((screeny/grid_size) - 2):
+            if iterator < ((screeny / grid_pixels) - 2):
                 iterator += 1
                 row = algorithms.ellers_algorithm(iterator, background, row)
             else:
