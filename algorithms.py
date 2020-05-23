@@ -17,7 +17,7 @@ def set_recursive_bias(bias):
 
  
 def setup_recursive(background):
-    background.fill(main.background_colour)
+    background.fill(main.BACKGROUND_COLOUR)
     helpers.draw_grid(background)
     helpers.draw_border(background)
     #background.fill(start_colour, rect=highlighted_cell)
@@ -31,11 +31,11 @@ def recursive_backtracker(current, background):
     for direction in directions.list:
         colour = current.get_colour_adjacent(direction[0], background)
          # If in this direction unvisited, move current there, fill cell and erase border
-        if colour == main.background_colour:
-            background.fill(main.cell_colour, rect=current.rect)
-            current.draw_grid(direction[1], main.cell_colour, background)
+        if colour == main.BACKGROUND_COLOUR:
+            background.fill(main.CELL_COLOUR, rect=current.rect)
+            current.draw_grid(direction[1], main.CELL_COLOUR, background)
             current = helpers.Cell((current.coord[0] + direction[0][0]), (current.coord[1] + direction[0][1]))
-            background.fill(main.current_colour, rect=current.rect)
+            background.fill(main.CURRENT_COLOUR, rect=current.rect)
             
 
             helpers.wait()
@@ -46,11 +46,11 @@ def recursive_backtracker(current, background):
     for direction in directions.list:
         colour = current.get_grid_colour(direction[1], background)
 
-        if colour == main.cell_colour:
-            background.fill(main.final_colour, rect=current.rect)
-            current.draw_grid(direction[1], main.final_colour, background)
+        if colour == main.CELL_COLOUR:
+            background.fill(main.FINAL_COLOUR, rect=current.rect)
+            current.draw_grid(direction[1], main.FINAL_COLOUR, background)
             current = helpers.Cell((current.coord[0] + direction[0][0]), (current.coord[1] + direction[0][1]))
-            background.fill(main.current_colour, rect=current.rect)
+            background.fill(main.CURRENT_COLOUR, rect=current.rect)
             
 
             helpers.wait()
@@ -100,13 +100,13 @@ def setup_kruskals(background):
         row = helpers.Row(y, None, background, first=True)
         # Iterate over row, adding each colour_set to dictionary
         for cell in row.cells:
-            if cell.colour != main.border_colour:
+            if cell.colour != main.BORDER_COLOUR:
                 set_dictionary[tuple(cell.colour)] = helpers.BinaryTree(cell.rect)
                 # And add grid connections to list
                 if 0 < cell.index < (dimensions["grid_size"] - 2):
-                    grid_connections.append(helpers.Line(cell.get_grid("right"), main.grid_colour))
+                    grid_connections.append(helpers.Line(cell.get_grid("right"), main.GRID_COLOUR))
                 if y > 1 and cell.index >= 1:
-                    grid_connections.append(helpers.Line(cell.get_grid("top"), main.grid_colour))
+                    grid_connections.append(helpers.Line(cell.get_grid("top"), main.GRID_COLOUR))
         row.draw(background)
     
     return set_dictionary, grid_connections

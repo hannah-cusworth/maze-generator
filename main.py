@@ -6,28 +6,23 @@ import algorithms
 
 pygame.init()
 
-# Dimensions
-info = pygame.display.Info()
-dimensions = {}
+
+INFO = pygame.display.Info()
 
 # Colours
-background_colour = (160,160,160, 255)
-grid_colour = (0,0,0,255)
-border_colour = grid_colour
-cell_colour = (200,200,200, 255)
-start_colour = (0,0,255, 255)
-final_colour = (255, 255, 255, 255)
-current_colour = (0,255,0,255)
-
-
-# Algorithms
+BACKGROUND_COLOUR = (160,160,160, 255)
+GRID_COLOUR = (0,0,0,255)
+BORDER_COLOUR = GRID_COLOUR
+CELL_COLOUR = (200,200,200, 255)
+START_COLOUR = (0,0,255, 255)
+FINAL_COLOUR = (255, 255, 255, 255)
+CURRENT_COLOUR = (0,255,0,255)
 
 
 def set_grid_size(size):
-    global dimensions
     dimensions = {
         "grid_size": size,
-        "screenx": int((info.current_w*0.75)  - ((info.current_w*0.75) % size)),
+        "screenx": int((INFO.current_w*0.75)  - ((INFO.current_w*0.75) % size)),
         }
     dimensions["grid_pixels"] = int(dimensions["screenx"]/size)
     dimensions["screeny"] = int(dimensions["screenx"]*0.6) - (int(dimensions["screenx"]*0.6) % dimensions["grid_pixels"])
@@ -35,6 +30,7 @@ def set_grid_size(size):
         
     helpers.update_dimensions(dimensions)
     algorithms.update_dimensions(dimensions)
+    return dimensions
 
 def main():
     # Declare variables to control algorithm choice 
@@ -49,27 +45,34 @@ def main():
     # Game loop
     while True:
         if not recursive and not ellers and not kruskals:
+
             # Launch window
             helpers.colour_set.refresh()
             popup = window.AlgoSelectWindow()
+
             # Check whether to exit program
             if popup.exit_status:
                 return
-            # Set grid size
+
+            # Set dimensions of screen and grid
             size = popup.grid_var.get() * 10
-            set_grid_size(size)
+            dimensions = set_grid_size(size)
+
             # Initialise screen
-            pygame.display.set_caption('Visualiser')
+            pygame.display.set_caption('Maze Generation Visualiser')
             screen = pygame.display.set_mode((dimensions["screenx"], dimensions["screeny"]))
             background = pygame.Surface(screen.get_size())
             background.convert()
+            
             # Blit everything to the screen
             screen.blit(background, (0, 0))
             pygame.display.flip()
+            
             # Set speed
             speed = 221 - (popup.speed_var.get() * 20)
             helpers.set_wait_time(speed)
-            # Get selected algorithm
+            
+            # Set up selected algorithm
             algorithm = popup.choice
             if algorithm == window.algorithm_list[0]:
                 recursive = True
@@ -92,23 +95,23 @@ def main():
             if recursive and not current_cell:
                 mouse = pygame.mouse.get_pos()
                 colour = background.get_at(mouse)
-                if event.type == pygame.MOUSEBUTTONDOWN and colour != border_colour:
+                if event.type == pygame.MOUSEBUTTONDOWN and colour != BORDER_COLOUR:
                     current_cell = highlighted_cell 
 
         if recursive:
             if not current_cell:
-                if colour == background_colour:
-                    background.fill(background_colour, rect=highlighted_cell)
+                if colour == BACKGROUND_COLOUR:
+                    background.fill(BACKGROUND_COLOUR, rect=highlighted_cell)
                     x = int((mouse[0] - 1) / dimensions["grid_pixels"])
                     y = int((mouse[1] - 1) / dimensions["grid_pixels"])
                     highlighted_cell = helpers.Cell(x,y)
-                    background.fill(start_colour, rect=highlighted_cell)
+                    background.fill(START_COLOUR, rect=highlighted_cell)
                     fill_start = True
                     start_cell = highlighted_cell
             else:
                 current_cell = algorithms.recursive_backtracker(current_cell, background)
                 if fill_start == True:
-                    background.fill(start_colour, rect=start_cell)
+                    background.fill(START_COLOUR, rect=start_cell)
                     fill_start = False
                 if current_cell.coord == start_cell.coord:
                     recursive = False

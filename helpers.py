@@ -11,14 +11,14 @@ def update_dimensions(new_dimensions):
 
 def draw_grid(background):
     for x in range(0, dimensions["screenx"], dimensions["grid_pixels"]):
-        pygame.draw.line(background, main.grid_colour, (x, 0), (x, dimensions["screeny"]), 1)
+        pygame.draw.line(background, main.GRID_COLOUR, (x, 0), (x, dimensions["screeny"]), 1)
         
     for y in range(0, dimensions["screeny"], dimensions["grid_pixels"]):
-        pygame.draw.line(background, main.grid_colour, (0, y), (dimensions["screenx"], y), 1)
+        pygame.draw.line(background, main.GRID_COLOUR, (0, y), (dimensions["screenx"], y), 1)
    
 def draw_border(background):
     border = pygame.Rect(0, 0, dimensions["screenx"] - 1, dimensions["screeny"])
-    pygame.draw.rect(background, main.border_colour, border, dimensions["border_width"])
+    pygame.draw.rect(background, main.BORDER_COLOUR, border, dimensions["border_width"])
 
 def set_wait_time(speed):
     global wait_time
@@ -146,7 +146,7 @@ class Cell():
             "left": ((self.rect.left - 1, self.rect.top), (self.rect.left - 1, self.rect.bottom - 1))
         }
         x, y = edges[edge]
-        return pygame.draw.line(surf, main.cell_colour, x, y)
+        return pygame.draw.line(surf, main.CELL_COLOUR, x, y)
 
     def draw_grid(self, edge, colour, background) -> None:
         grid = self.get_grid(edge)
@@ -186,7 +186,7 @@ colour_set = ColourSet()
 class Row():
     def __init__(self, iterator, prev, background, first=False):
         border = Cell(0,iterator)
-        border.colour = main.border_colour
+        border.colour = main.BORDER_COLOUR
 
         self.y = (dimensions["grid_pixels"] * iterator) + 1 
         self.border = border
@@ -214,7 +214,7 @@ class Row():
                     random.seed()
                     choice = random.choice(probability)
                     if choice:
-                        new.colour = main.background_colour
+                        new.colour = main.BACKGROUND_COLOUR
                     else:
                         new.colour = prev_colour
                         
@@ -247,7 +247,7 @@ class Row():
         changed = {}
         
         for cell in self.cells:
-            ignore = [main.background_colour, main.border_colour]
+            ignore = [main.BACKGROUND_COLOUR, main.BORDER_COLOUR]
             adjacent_colour = self.get_colour_adjacent(cell, -1)
             if adjacent_colour in ignore or cell.colour in ignore:
                 continue
@@ -269,8 +269,8 @@ class Row():
         ''' Assign blank cells their own new set '''
         for cell in self.cells:
             adjacent_colour = self.get_colour_adjacent(cell, 1)
-            if cell.colour == main.background_colour:
-                if random.randint(0,1) or adjacent_colour == main.border_colour:
+            if cell.colour == main.BACKGROUND_COLOUR:
+                if random.randint(0,1) or adjacent_colour == main.BORDER_COLOUR:
                     cell.colour = colour_set.dequeue()
                     
                 else:
@@ -287,10 +287,10 @@ class Row():
             
     def clear(self, background):
         for cell in self.cells:
-            if cell.colour != main.border_colour:
-                background.fill(main.final_colour, rect=cell.rect)
+            if cell.colour != main.BORDER_COLOUR:
+                background.fill(main.FINAL_COLOUR, rect=cell.rect)
         for line in self.lines:
-            background.fill(main.final_colour, rect=line.rect)
+            background.fill(main.FINAL_COLOUR, rect=line.rect)
 
     def finish(self, background):
         final_set = self.cells[1].colour
