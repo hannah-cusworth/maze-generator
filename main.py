@@ -8,11 +8,7 @@ pygame.init()
 
 # Dimensions
 info = pygame.display.Info()
-grid_size = 50
-screenx = int((info.current_w*0.75)  - ((info.current_w*0.75) % grid_size))
-grid_pixels = int(screenx/grid_size)
-screeny = int(screenx*0.6) - (int(screenx*0.6) % grid_pixels)
-border_width = grid_pixels*2 # note that because the border grows either side of line, only half of this is visible
+dimensions = {}
 
 # Colours
 background_colour = (160,160,160, 255)
@@ -25,33 +21,30 @@ current_colour = (0,255,0,255)
 
 
 # Algorithms
-recursive = False
-ellers = False
-kruskals = False
+
 
 def set_grid_size(size):
-    global grid_size
-    grid_size = size
+    global dimensions
+    dimensions = {
+        "grid_size": size,
+        "screenx": int((info.current_w*0.75)  - ((info.current_w*0.75) % size)),
+        }
+    dimensions["grid_pixels"] = int(dimensions["screenx"]/size)
+    dimensions["screeny"] = int(dimensions["screenx"]*0.6) - (int(dimensions["screenx"]*0.6) % dimensions["grid_pixels"])
+    dimensions["border_width"] = dimensions["grid_pixels"]*2
+        
+    helpers.update_dimensions(dimensions)
+    algorithms.update_dimensions(dimensions)
 
 def main():
-    # Declare variables to control algorithm choice and speed
-    global recursive
-    global ellers
-    global kruskals
-
-    # Initialise screen
-    pygame.display.set_caption('Visualiser')
-    screen = pygame.display.set_mode((screenx, screeny))
-    background = pygame.Surface(screen.get_size())
-    background.convert()
+    # Declare variables to control algorithm choice 
+    recursive = False
+    ellers = False
+    kruskals = False
 
     # Set events
     allowed = [pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN]
     pygame.event.set_allowed(allowed)
- 
-    # Blit everything to the screen
-    screen.blit(background, (0, 0))
-    pygame.display.flip()
 
     # Game loop
     while True:
@@ -65,6 +58,14 @@ def main():
             # Set grid size
             size = popup.grid_var.get() * 10
             set_grid_size(size)
+            # Initialise screen
+            pygame.display.set_caption('Visualiser')
+            screen = pygame.display.set_mode((dimensions["screenx"], dimensions["screeny"]))
+            background = pygame.Surface(screen.get_size())
+            background.convert()
+            # Blit everything to the screen
+            screen.blit(background, (0, 0))
+            pygame.display.flip()
             # Set speed
             speed = 221 - (popup.speed_var.get() * 20)
             helpers.set_wait_time(speed)
@@ -98,8 +99,8 @@ def main():
             if not current_cell:
                 if colour == background_colour:
                     background.fill(background_colour, rect=highlighted_cell)
-                    x = int((mouse[0] - 1) / grid_pixels)
-                    y = int((mouse[1] - 1) / grid_pixels)
+                    x = int((mouse[0] - 1) / dimensions["grid_pixels"])
+                    y = int((mouse[1] - 1) / dimensions["grid_pixels"])
                     highlighted_cell = helpers.Cell(x,y)
                     background.fill(start_colour, rect=highlighted_cell)
                     fill_start = True
@@ -115,7 +116,7 @@ def main():
 
                 
         elif ellers:
-            if iterator < ((screeny / grid_pixels) - 2):
+            if iterator < ((dimensions["screeny"] / dimensions["grid_pixels"]) - 2):
                 iterator += 1
                 row = algorithms.ellers_algorithm(iterator, background, row)
             else:

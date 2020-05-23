@@ -4,6 +4,12 @@ import main
 import random
 
 recursive_bias = None
+dimensions = {"grid_size":0, "screenx":0, "grid_pixels":0, "screeny":0, "border_width":0}
+
+
+def update_dimensions(new_dimensions):
+    global dimensions
+    dimensions = new_dimensions
 
 def set_recursive_bias(bias):
     global recursive_bias
@@ -51,7 +57,7 @@ def recursive_backtracker(current, background):
             return current
 
 def setup_ellers(background, row):
-    background.fill(main.grid_size)  
+    background.fill(dimensions["grid_size"])  
     helpers.draw_border(background)
     row.draw(background)
     helpers.wait()
@@ -86,7 +92,7 @@ def setup_kruskals(background):
     helpers.draw_grid(background)
     set_dictionary = {}
     grid_connections = []
-    grid_y = (main.screeny/main.grid_pixels) - 1
+    grid_y = (dimensions["screeny"]/dimensions["grid_pixels"]) - 1
     
     # Create rows with random colour_sets
     for y in range(1, int(grid_y)):
@@ -97,7 +103,7 @@ def setup_kruskals(background):
             if cell.colour != main.border_colour:
                 set_dictionary[tuple(cell.colour)] = helpers.BinaryTree(cell.rect)
                 # And add grid connections to list
-                if 0 < cell.index < (main.grid_size - 2):
+                if 0 < cell.index < (dimensions["grid_size"] - 2):
                     grid_connections.append(helpers.Line(cell.get_grid("right"), main.grid_colour))
                 if y > 1 and cell.index >= 1:
                     grid_connections.append(helpers.Line(cell.get_grid("top"), main.grid_colour))

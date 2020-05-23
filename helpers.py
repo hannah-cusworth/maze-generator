@@ -3,18 +3,22 @@ import random
 import main
 
 wait_time = 1
+dimensions = {"grid_size":0, "screenx":0, "grid_pixels":0, "screeny":0, "border_width":0}
 
+def update_dimensions(new_dimensions):
+    global dimensions
+    dimensions = new_dimensions
 
 def draw_grid(background):
-    for x in range(0, main.screenx, main.grid_pixels):
-        pygame.draw.line(background, main.grid_colour, (x, 0), (x, main.screeny), 1)
+    for x in range(0, dimensions["screenx"], dimensions["grid_pixels"]):
+        pygame.draw.line(background, main.grid_colour, (x, 0), (x, dimensions["screeny"]), 1)
         
-    for y in range(0, main.screeny, main.grid_pixels):
-        pygame.draw.line(background, main.grid_colour, (0, y), (main.screenx, y), 1)
+    for y in range(0, dimensions["screeny"], dimensions["grid_pixels"]):
+        pygame.draw.line(background, main.grid_colour, (0, y), (dimensions["screenx"], y), 1)
    
 def draw_border(background):
-    border = pygame.Rect(0, 0, main.screenx - 1, main.screeny)
-    pygame.draw.rect(background, main.border_colour, border, main.border_width)
+    border = pygame.Rect(0, 0, dimensions["screenx"] - 1, dimensions["screeny"])
+    pygame.draw.rect(background, main.border_colour, border, dimensions["border_width"])
 
 def set_wait_time(speed):
     global wait_time
@@ -103,7 +107,7 @@ class DirectionSet():
 class ColourSet():
     def __init__(self):
         self.all = []
-        for i in range(main.grid_size - 2):
+        for i in range(dimensions["grid_size"] - 2):
             # keep between 1 and 255 to exclude border/grid/background
             random.seed()
             self.all.append((random.randint(1,255), random.randint(1,255), random.randint(1,255), 255))
@@ -129,12 +133,12 @@ class Cell():
     def __init__(self, x, y):
         #self.start = pygame.Rect((main.grid_pixels * x) + 1, (main.grid_pixels * y) + 1, main.grid_pixels-1, main.grid_pixels-1)
         self.coord = (x,y)
-        self.rect = pygame.Rect((main.grid_pixels * x) + 1, (main.grid_pixels * y) + 1, main.grid_pixels-1, main.grid_pixels-1)
+        self.rect = pygame.Rect((dimensions["grid_pixels"] * x) + 1, (dimensions["grid_pixels"] * y) + 1, dimensions["grid_pixels"]-1, dimensions["grid_pixels"]-1)
         self.colour = None
         self.index = x
 
     def get_grid(self, edge): # -> pygame.Rect
-        surf = pygame.Surface((main.screenx, main.screeny))
+        surf = pygame.Surface((dimensions["screenx"], dimensions["screeny"]))
         edges = {
             "top": ((self.rect.left, self.rect.top - 1), (self.rect.right - 1, self.rect.top - 1)),
             "bottom": ((self.rect.left, self.rect.bottom), (self.rect.right - 1, self.rect.bottom)),
@@ -168,11 +172,11 @@ class Line():
     def get_cell(self):
         coords = self.rect.center
         if self.rect.width > 1:
-            x = (coords[0] - 1) / main.grid_pixels
-            y = (coords[1] - 5) / main.grid_pixels
+            x = (coords[0] - 1) / dimensions["grid_pixels"]
+            y = (coords[1] - 5) / dimensions["grid_pixels"]
         else:
-            x = (coords[0] - 5) / main.grid_pixels
-            y = (coords[1] - 1) / main.grid_pixels
+            x = (coords[0] - 5) / dimensions["grid_pixels"]
+            y = (coords[1] - 1) / dimensions["grid_pixels"]
         return Cell(int(x), int(y))
 
 
@@ -184,14 +188,14 @@ class Row():
         border = Cell(0,iterator)
         border.colour = main.border_colour
 
-        self.y = (main.grid_pixels * iterator) + 1 
+        self.y = (dimensions["grid_pixels"] * iterator) + 1 
         self.border = border
         self.cells = [self.border]
         self.lines = []
         self.merged = {}
         
 
-        for i in range(1, main.grid_size - 1):
+        for i in range(1, dimensions["grid_size"] - 1):
             new = Cell(i, iterator)
 
             # Initiate first row by assigning colours from queue
