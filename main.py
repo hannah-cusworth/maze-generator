@@ -83,6 +83,7 @@ def main():
             elif algorithm == window.algorithm_list[1]:
                 ellers = True
                 iterator = 1
+                helpers.colour_set.refresh()
                 row = helpers.Row(iterator, None, background, first=True)
                 algorithms.setup_ellers(background, row)
             elif algorithm == window.algorithm_list[2]:

@@ -29,12 +29,6 @@ def wait():
     while pygame.time.get_ticks() < time + wait_time: 
         pass
 
-
-
-
-
-
-
 class BinaryTree():
     def __init__(self, data):
         self.head = BinaryTreeNode(data)

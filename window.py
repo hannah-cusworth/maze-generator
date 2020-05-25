@@ -8,15 +8,15 @@ algorithm_list = [
             "Kruskal's Algorithm",
             ]
 algo_info = [
-    "Blah",
-    "foo",
-    "baz",
-]
+ "The recursive backtracker randomly decides which adjacent cell to make the next call on. When there are no unvisited adjacent cells, it returns.",
+ "Eller's algorithm draws a maze one row at a time. It uses sets (represented here with randomly generated colours) to keep track of which cells are connected and avoid isolates or cycles.",
+ "Kruskal's algorithm iterates over all the lines in the grid in a random order. If the cells divided by the line are not already connected, it connects them. Like Eller's, it uses sets to keep track of cells that are connected.",
+ ]
 
 # Padding
 x = 50
 y = 50
-button_padding = 200
+button_padding = 20
 
 class AlgoSelectWindow():
     def __init__(self):
@@ -25,12 +25,13 @@ class AlgoSelectWindow():
         self.exit_status = False
         # Configure window
         self.window.title("Maze Generator")
-        self.window.columnconfigure([0,1], minsize=500, weight=1)
-        self.window.rowconfigure([0,1,2,3,4], minsize=100, weight=1)
+
+        self.window.columnconfigure([0,1], minsize=200, weight=1)
+        self.window.rowconfigure([0,1,2,3,4], minsize=0, weight=1)
 
         # Set font
-        myfont = tkFont.Font(family="Helvetica", size=48)
-        listfont = tkFont.Font(family="Helvetica", size=36)
+        myfont = tkFont.Font(family="Helvetica", size=30)
+        listfont = tkFont.Font(family="Helvetica", size=24)
 
         # Intro frame
         intro_frame = tk.Frame()
@@ -82,10 +83,11 @@ class AlgoSelectWindow():
         info_frame = tk.Frame()
         info_frame.grid(row=2, column=0, columnspan=2)
         self.info_text_variable = tk.StringVar(self.window)
-        self.info_text = tk.Label(
+        self.info_text = tk.Message(
             master=info_frame,
             textvariable=self.info_text_variable,
-            font=myfont,
+            width=400,
+            font=listfont,
             padx=x,
             pady=y,
         )
@@ -187,9 +189,12 @@ class AlgoSelectWindow():
         run_button.grid(
             row=4, 
             column=0,
+            columnspan=1,
             padx=x,
             pady=button_padding,
             )
+
+        
 
         quit_button = tk.Button(
             text="Exit Program",
@@ -236,11 +241,12 @@ class AlgoSelectWindow():
             self.set_bias_right.pack()
             self.set_bias_x.pack()
             self.set_bias_y.pack()
+        if choice == algorithm_list[1]:
+            self.info_text_variable.set(algo_info[1])
+        if choice == algorithm_list[2]:
+            self.info_text_variable.set(algo_info[2])
             
        
-            
-   
-
 
 
     def quit(self):
