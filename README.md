@@ -1,6 +1,8 @@
 # Maze Generator Vizualiser 
 
-This is a tool for vizualising how different maze generation algorithms work build in Pygame. It was inspired by [this blog post](https://bost.ocks.org/mike/algorithms/) by Mike Bostock and Jamis Buck's [curation of maze algorithms](http://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap).
+This is a tool built in Pygame for vizualising how different maze generation algorithms work. It was inspired by [this blog post](https://bost.ocks.org/mike/algorithms/) by Mike Bostock and Jamis Buck's [curation of maze algorithms](http://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap).
+
+Try it out [here](https://trinket.io/library/trinkets/4ee05dd155).
 
 ### Recursive Backtracker
 
@@ -12,11 +14,13 @@ This algorithm works as follows:
 4. If a direction hasn't been visited before, carve a path into the adjacent cell; if it has been visited, try the next direction.
 5. Once all directions have been tried, return.
 
-To visualise it, I have implemented it iteratively. 
+To visualise this process, I have implemented the algorithm iteratively so that:
 * Blue = start cell.
 * Green = current cell on which the recursive call is being made.
 * Grey = cells with unfinished calls on the stack. 
 * White = cells corresponding to calls that have returned.
+
+The user can also choose to introduce a bias so that the algorithm will favour a certain direction when deciding which cell to make the next call on.
 
 ### Eller's Algorithm
 
@@ -29,7 +33,7 @@ It uses sets to group together cells which have a connection between them.
 4. Repeat the merging and creation process until the last row has been created.
 5. Finish by merging all remaining sets together.
 
-My implementation uses colours to represent the sets.
+My implementation uses colours to represent the sets and white to show rows that have been finished.
 
 ### Kruskal's Algorithm 
 
